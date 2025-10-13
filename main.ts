@@ -1,10 +1,13 @@
 import { initScene, animate } from './src/scene.ts';
 import { createKart } from './src/kart.ts';
 import { createRaceTrack } from './src/racetrack.ts';
+import { createWalls } from './src/walls.ts';
+
 
 initScene();
-createKart();
+//createKart();
 createRaceTrack();
+createWalls();
 animate();
 
 
