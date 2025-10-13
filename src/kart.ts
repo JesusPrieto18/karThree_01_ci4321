@@ -1,13 +1,15 @@
 import * as THREE from 'three';
 import { scene } from './scene';
+import { solidWithWire } from './utils';
 
-export let kart: THREE.Mesh;
+export let kart: THREE.Group;
 
 export function createKart(): void {
   const geometry = new THREE.BoxGeometry(1, 1, 2);
-  const material = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+  const material_color = 0xff0000;
 
-  kart = new THREE.Mesh(geometry, material);
+  kart = solidWithWire(geometry, material_color, false);
   kart.position.set(0, 0, 0);
   scene.add(kart);
+
 }
