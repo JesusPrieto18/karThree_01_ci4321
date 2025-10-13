@@ -38,7 +38,7 @@ export function initScene(): void {
   scene.add(dirHelper);
 
   // controles
-  const controls = new OrbitControls(camera, renderer.domElement);
+  controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
 
   // resize
@@ -50,7 +50,7 @@ export function initScene(): void {
 }
 
 export function animate(): void {
-  controls.update()
+  controls.update();
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
 }
