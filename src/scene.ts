@@ -27,7 +27,7 @@ export function initScene(): void {
 
   // luces
   const dir = new THREE.DirectionalLight(0xffffff, 1.0);
-  dir.position.set(0,10,5);
+  dir.position.set(2,5,6);
   //dir.castShadow = false;
   scene.add(dir);
 
