@@ -3,12 +3,14 @@ import { createKart } from './src/kart.ts';
 import { createRaceTrack } from './src/racetrack.ts';
 import { createWalls } from './src/walls.ts';
 import { createTrafficCone } from './src/trafficCone.ts';
+import { createShuriken } from './src/shuriken.ts';
 
 initScene();
 //createKart();
 createRaceTrack();
-createWalls();
-createTrafficCone();
+//createWalls();
+//createTrafficCone();
+createShuriken();
 animate();
 
 
@@ -27,4 +29,3 @@ animate();
 //  camera.updateProjectionMatrix();
 //  renderer.setSize(w, h);
 //});
-
