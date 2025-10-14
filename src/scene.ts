@@ -31,7 +31,3 @@ export function initScene(): void {
   });
 }
 
-export function animate(): void {
-  requestAnimationFrame(animate);
-  renderer.render(scene, camera);
-}
