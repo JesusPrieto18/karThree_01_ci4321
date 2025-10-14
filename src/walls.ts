@@ -29,6 +29,6 @@ export function createWalls(): void {
 
     walls = new THREE.Group();
     walls.add(wall1, wall2, wall3, wall4);
-
+    walls.position.y = wallHeight / 2; // Elevar las paredes para que estén sobre el suelo
     scene.add(walls);
 }
