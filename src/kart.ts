@@ -8,6 +8,6 @@ export function createKart(): void {
   const material = new THREE.MeshStandardMaterial({ color: 0xff0000 });
 
   kart = new THREE.Mesh(geometry, material);
-  kart.position.set(0, 0, 0);
+  kart.position.set(0, 0.5, 0);
   scene.add(kart);
 }

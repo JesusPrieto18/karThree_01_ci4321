@@ -1,14 +1,14 @@
 import { scene, renderer, camera, initScene,} from './src/scene.ts';
-import { createCameraControls } from './src/utils/controls_camera.ts';
 import { createKart } from './src/kart.ts';
-
+import { setupControls, updateControls} from './src/controls.ts';
+import { createObstacles } from './src/obstacles.ts';
 function animate(): void {
   requestAnimationFrame(animate);
-  const controls = createCameraControls(camera, renderer);
-  controls.update();
+  updateControls();
   renderer.render(scene, camera);
 }
-
 initScene();
 createKart();
+createObstacles();
+setupControls();
 animate();

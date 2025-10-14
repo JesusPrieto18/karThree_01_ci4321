@@ -14,7 +14,7 @@ export function initScene(): void {
     0.1,
     1000
   );
-  camera.position.set(0, 2, 7);
+  camera.position.set(0, 2, 5);
 
   renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -24,10 +24,10 @@ export function initScene(): void {
   light.position.set(10, 10, 10);
   scene.add(light);
 
-  window.addEventListener('resize', () => {
+  /*window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-  });
+  })*/;
 }
 
