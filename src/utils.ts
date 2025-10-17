@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { PowerUp } from "./powerUps";
 
 // ---------- utilidades ----------
 export function solidWithWire(
@@ -28,4 +29,10 @@ export function solidWithWire(
     group.add(solid);
   }
   return group;
+}
+
+// Initializacion
+
+export function createPowerUp(): void {
+  const pu = new PowerUp();
 }

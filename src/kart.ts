@@ -9,7 +9,7 @@ export function createKart(): void {
   const material_color = 0xff0000;
 
   kart = solidWithWire(geometry, material_color, false);
-  kart.position.set(0, 0, 0);
+  kart.position.set(2, 0.5, 2);
   scene.add(kart);
 
 }

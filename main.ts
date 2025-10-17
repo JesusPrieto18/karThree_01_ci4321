@@ -3,14 +3,15 @@ import { createKart } from './src/kart.ts';
 import { createRaceTrack } from './src/racetrack.ts';
 import { createWalls } from './src/walls.ts';
 import { createTrafficCone } from './src/trafficCone.ts';
-import { createShuriken } from './src/shuriken.ts';
-
+import { createPowerUp } from './src/utils.ts';
 initScene();
-//createKart();
+createKart();
 createRaceTrack();
 //createWalls();
 //createTrafficCone();
-createShuriken();
+createPowerUp();
+//createShuriken();
+
 animate();
 
 
