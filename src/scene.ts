@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { updateControls } from './controls';
 
 export let scene: THREE.Scene;
 export let camera: THREE.PerspectiveCamera;
@@ -49,8 +50,10 @@ export function initScene(): void {
   });
 }
 
+
 export function animate(): void {
-  controls.update();
+  //controls.update();
+  updateControls();
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
 }

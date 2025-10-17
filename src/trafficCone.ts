@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { solidWithWire } from './utils';
+import { solidWithWire } from './utils/utils';
 import { scene } from './scene';
 
 export let trafficCone: THREE.Group;

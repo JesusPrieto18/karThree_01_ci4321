@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { PowerUp } from "./powerUps";
+import { PowerUp } from "../powerUps";
 
 // ---------- utilidades ----------
 export function solidWithWire(

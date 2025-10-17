@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { scene } from './scene';
-import { solidWithWire } from './utils';
+import { solidWithWire } from './utils/utils';
 
 export let kart: THREE.Group;
 
