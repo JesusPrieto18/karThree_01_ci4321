@@ -24,7 +24,9 @@ export function updateControls(): void {
   
   kart.position.x += Math.sin(kart.rotation.y) * speed;
   kart.position.z += Math.cos(kart.rotation.y) * speed;
-  
+  /**
+   
+   
   // Actualizar cámara
   const distanceBehind = 5;
   const height = 2;
@@ -33,7 +35,7 @@ export function updateControls(): void {
   camera.position.z = kart.position.z - Math.cos(kart.rotation.y) * distanceBehind;
   camera.position.y = kart.position.y + height;
 
-  camera.lookAt(kart.position);
+  camera.lookAt(kart.position);*/
 }
 
 

@@ -5,11 +5,15 @@ import { solidWithWire } from './utils/utils';
 export let kart: THREE.Group;
 
 export function createKart(): void {
-  const geometry = new THREE.BoxGeometry(1, 1, 2);
-  const material_color = 0xff0000;
+  const height = 1;
+  const length = 1;
+  const width = 2;
 
+  const geometry = new THREE.BoxGeometry(length, height, width);
+  const material_color = 0xff0000;
   kart = solidWithWire(geometry, material_color, false);
   kart.position.set(2, 0.5, 2);
+  kart.name = 'kart';
   scene.add(kart);
 
 }
