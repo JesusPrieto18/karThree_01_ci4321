@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { scene } from './scene';
 import { vertices, faces, colors } from './shurikenInfo';
+import { collisionObserver } from './utils/colliding';
 export class Shuriken {
   public mesh: THREE.Mesh;
   public name?: string;
@@ -11,8 +12,9 @@ export class Shuriken {
     const material = new THREE.MeshStandardMaterial({ vertexColors: true });
     this.mesh = new THREE.Mesh(geometry, material);
     if (this.name) this.mesh.name = this.name;
-    this.mesh.scale.set(0.25, 0.25, 0.25);
+    this.mesh.scale.set(0.1, 0.1, 0.1);
     scene.add(this.mesh);
+    collisionObserver.addColisionObject(this);
   }
 
   private buildGeometry(): THREE.BufferGeometry {

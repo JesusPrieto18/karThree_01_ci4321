@@ -23,7 +23,7 @@ export function updateControls(): void {
 
   kart.getFullKart().position.x += Math.sin(kart.getFullKart().rotation.y) * speed;
   kart.getFullKart().position.z += Math.cos(kart.getFullKart().rotation.y) * speed;
-  
+
   /**
    
    
