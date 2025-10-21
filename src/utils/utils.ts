@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { PowerUp } from "../powerUps";
 
 // ---------- utilidades ----------
 export function solidWithWire(
@@ -31,24 +30,57 @@ export function solidWithWire(
   return group;
 }
 
-function ensureBoundingBox(mesh: THREE.Mesh) {
-  if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
+// Colisiones AABB
+
+const localBoxCache = new WeakMap<THREE.BufferGeometry, THREE.Box3>();
+
+function getLocalBox(mesh: THREE.Mesh): THREE.Box3 {
+  const geo = mesh.geometry as THREE.BufferGeometry;
+  let box = localBoxCache.get(geo);
+  if (!box) {
+    if (!geo.boundingBox) geo.computeBoundingBox();
+    // guarda una copia inmutable de la caja local
+    box = geo.boundingBox!.clone();
+    localBoxCache.set(geo, box);
+  }
+  return box;
 }
 
-function worldAABB(mesh: THREE.Mesh): THREE.Box3 {
-  ensureBoundingBox(mesh);
-  // boundingBox es inmutable; hay que copiar y transformar
-  return new THREE.Box3().copy(mesh.geometry.boundingBox!).applyMatrix4(mesh.matrixWorld);
+// Llamar si CAMBIAS vertices (attributes.position) de esa geometría:
+function invalidateLocalBox(mesh: THREE.Mesh) {
+  const geo = mesh.geometry as THREE.BufferGeometry;
+  geo.computeBoundingBox();
+  localBoxCache.set(geo, geo.boundingBox!.clone());
 }
 
-export function aabbIntersects(a: THREE.Mesh, b: THREE.Mesh) {
-  const boxA = worldAABB(a);
-  const boxB = worldAABB(b);
+function worldAABB_Mesh(mesh: THREE.Mesh): THREE.Box3 {
+  // copiar local y transformar al mundo
+  return getLocalBox(mesh).clone().applyMatrix4(mesh.matrixWorld);
+}
+
+function worldAABB_Group(group: THREE.Group): THREE.Box3 {
+  const out = new THREE.Box3();
+  let hasAny = false;
+  group.traverse(obj => {
+    if ((obj as any).isMesh) {
+      const w = worldAABB_Mesh(obj as THREE.Mesh);
+      out.union(w);
+      hasAny = true;
+    }
+  });
+  return hasAny ? out : out.makeEmpty();
+}
+
+export function aabbIntersects(a: THREE.Object3D, b: THREE.Object3D) {
+  // asegúrate de tener matrices al día
+  a.updateMatrixWorld(true);
+  b.updateMatrixWorld(true);
+
+  const boxA = (a as any).isMesh ? worldAABB_Mesh(a as THREE.Mesh)
+                                 : worldAABB_Group(a as THREE.Group);
+  const boxB = (b as any).isMesh ? worldAABB_Mesh(b as THREE.Mesh)
+                                 : worldAABB_Group(b as THREE.Group);
+
   return boxA.intersectsBox(boxB);
 }
-// Initializacion
 
-export function createPowerUp(): void {
-  const pu = new PowerUp();
-
-}
