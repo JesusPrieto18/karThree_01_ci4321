@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-
 export class Box {
     public mesh: THREE.Mesh;
     public name?: string; 

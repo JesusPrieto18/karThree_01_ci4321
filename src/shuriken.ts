@@ -54,16 +54,8 @@ export class Shuriken {
   public rotateY(angleRad: number): void {
     this.mesh.rotation.y += angleRad;
   }
-  /**
-   * 
-   
-  public dispose(): void {
-    this.mesh.geometry.dispose();
-    if (Array.isArray(this.mesh.material)) {
-      this.mesh.material.forEach(m => m.dispose());
-    } else {
-      this.mesh.material.dispose();
-    }
-    scene.remove(this.mesh);
-  }*/
+
+   public isColliding(): boolean {
+    return false;  
+  }
 }
