@@ -1,4 +1,4 @@
-import { kart } from './kart';
+import { kart } from './utils/initializers';
 import { camera } from './scene';
 
 const keys: Record<string, boolean> = {};
@@ -18,12 +18,12 @@ export function updateControls(): void {
   if (!keys['ArrowUp'] && !keys['ArrowDown']) speed *= 0.95;
 
   // Rotar sobre su eje
-  if (keys['ArrowLeft']) kart.rotation.y += turnSpeed;
-  if (keys['ArrowRight']) kart.rotation.y -= turnSpeed;
+  if (keys['ArrowLeft']) kart.getFullKart().rotation.y += turnSpeed;
+  if (keys['ArrowRight']) kart.getFullKart().rotation.y -= turnSpeed;
 
+  kart.getFullKart().position.x += Math.sin(kart.getFullKart().rotation.y) * speed;
+  kart.getFullKart().position.z += Math.cos(kart.getFullKart().rotation.y) * speed;
   
-  kart.position.x += Math.sin(kart.rotation.y) * speed;
-  kart.position.z += Math.cos(kart.rotation.y) * speed;
   /**
    
    
