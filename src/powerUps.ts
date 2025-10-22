@@ -8,7 +8,7 @@ import { kart } from './utils/initializers';
 export class PowerUp {
     private powerUp = new THREE.Group();
     private box: Box;
-    private car: THREE.Group = kart.getFullKart();
+    private car: THREE.Group = kart.getKart();
     constructor() {
         this.box = new Box();
         this.powerUp.add(this.box.mesh);
@@ -19,6 +19,7 @@ export class PowerUp {
     
     public setPowerUp():void {
         const x = Math.round(Math.random() * 3);
+        //const x = 2;
         kart.setPowerUps(x);
         console.log(x);
     } 

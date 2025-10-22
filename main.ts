@@ -11,7 +11,7 @@ initScene();
 createRaceTrack();
 //createObstacles();
 setupControls();
-createWalls();
+//createWalls();
 //createTrafficCone();
 createKart();   
 createPowerUp();

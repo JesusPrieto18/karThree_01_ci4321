@@ -83,3 +83,8 @@ export function aabbIntersects(a: THREE.Object3D, b: THREE.Object3D) {
 
   return boxA.intersectsBox(boxB);
 }
+
+// Rotación de las ruedas según velocidad y radio
+export function calculateWheelRotation(speed: number, radius: number, direction: number): number {
+    return (speed / (radius * Math.PI * 2)) * direction;
+}

@@ -25,6 +25,10 @@ export class Shuriken {
     geometry.computeVertexNormals();
     return geometry;
   }
+
+  public getPosition(): THREE.Vector3 {
+    return this.mesh.position.clone();
+  }
   public setPosition(x: number, y: number, z: number): void {
     this.mesh.position.set(x, y, z);
   }
