@@ -83,4 +83,3 @@ export function aabbIntersects(a: THREE.Object3D, b: THREE.Object3D) {
 
   return boxA.intersectsBox(boxB);
 }
-

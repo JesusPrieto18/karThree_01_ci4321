@@ -20,6 +20,12 @@ export function updateControls(): void {
   // Rotar sobre su eje
   if (keys['ArrowLeft']) kart.getFullKart().rotation.y += turnSpeed;
   if (keys['ArrowRight']) kart.getFullKart().rotation.y -= turnSpeed;
+  
+  // Lanzar shuriken
+  if (keys[' ']) {
+    kart.launchPowerUps();
+    keys[' '] = false;
+  }
 
   kart.getFullKart().position.x += Math.sin(kart.getFullKart().rotation.y) * speed;
   kart.getFullKart().position.z += Math.cos(kart.getFullKart().rotation.y) * speed;

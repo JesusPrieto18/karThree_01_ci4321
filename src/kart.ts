@@ -2,11 +2,12 @@ import * as THREE from 'three';
 import { scene } from './scene';
 import { solidWithWire } from './utils/utils';
 import { Shuriken } from './shuriken';
-
 export class Kart {
   private powerUps: number = -1;
   private isActivatePowerUps: boolean = false;
   private powerUpsList: THREE.Group = new THREE.Group();
+  private proyectilesList: THREE.Group = new THREE.Group();
+  private proyectilesDirection:THREE.Vector3[] = [];
 
   private full_kart = new THREE.Group();
   
@@ -22,7 +23,10 @@ export class Kart {
     
     this.full_kart.position.set(0, 0.5, 0);
     this.full_kart.add(body);
+    this.full_kart.add(new THREE.AxesHelper(3));
     scene.add(this.full_kart);
+
+    scene.add(this.proyectilesList);
   }
 
   public getFullKart(): THREE.Group {
@@ -96,13 +100,34 @@ export class Kart {
     }
   }
 
+  public launchPowerUps(): void {
+    if (this.isActivatePowerUps && this.powerUpsList.children.length > 0) {
+      console.log("Lanzando power ups");
+      const shuriken = this.powerUpsList.children.pop();
+
+      const shurikenDirection = new THREE.Vector3(0, 0, -1);
+      this.full_kart.getWorldDirection(shurikenDirection);
+      
+      const shurikenWorldPosition = new THREE.Vector3();
+      this.full_kart.getWorldPosition(shurikenWorldPosition);
+      shuriken!.position.copy(shurikenWorldPosition);
+      
+      this.proyectilesDirection.push(shurikenDirection);
+      this.proyectilesList.add(shuriken!);
+
+      console.log(this.powerUpsList.children.length);
+    } else {
+      console.log("No tienes power ups para lanzar");
+    }
+  }
+
   public animate(): void {
     if (this.isActivatePowerUps) {
       this.powerUpsList.children.forEach((powerUp) => {
         powerUp.rotation.y -= 0.1;
       });
     }
-    
+
     switch (this.powerUps) {
       case 0:
         this.powerUpsList.rotation.copy(this.full_kart.rotation);
@@ -114,5 +139,10 @@ export class Kart {
 
     this.powerUpsList.position.copy(this.full_kart.position);
 
+    for (let i = 0; i < this.proyectilesDirection.length; i++) {
+      const proyectil = this.proyectilesList.children[i];
+      proyectil.position.addScaledVector(this.proyectilesDirection[i], 0.1);
+      proyectil.rotation.y -= 0.1;
+    };
   }
 }
