@@ -27,7 +27,7 @@ export class Kart {
     const material_color = 0xff0000;
     this.kartChassis = solidWithWire(body, material_color, false);
     this.kart.add(this.kartChassis);
-    this.kart.position.set(0, 0.5, 2);
+    this.kart.position.set(0, 0.5,-3)
 
     this.wheelAxisGroup = new THREE.Group();
     const wheelGeometry = new THREE.CylinderGeometry(0.3, 0.3, 0.2, 8);
@@ -75,7 +75,7 @@ export class Kart {
     this.kart.add(this.wheelAxisGroup);
     scene.add(this.kart);
   };
-  public getFullKart(): THREE.Group {
+  public getKart(): THREE.Group {
     return this.kart;
   };
   public getWheelsFrontAxis(): THREE.Group {
