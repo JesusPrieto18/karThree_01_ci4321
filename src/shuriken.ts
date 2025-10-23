@@ -3,10 +3,13 @@ import { scene } from './scene';
 import { vertices, faces, colors } from './shurikenInfo';
 import { collisionObserver } from './utils/colliding';
 import { aabbIntersects } from './utils/utils';
-import { kart } from './utils/initializers';
+import type { CollisionClassName } from './models/colisionClass';
+import { TrafficCone } from './trafficCone';
+import { Walls } from './walls';
 export class Shuriken {
   public mesh: THREE.Mesh;
   public name?: string;
+  private direction: THREE.Vector3 = new THREE.Vector3(0, 0, -1);
 
   constructor(name?: string) {
     this.name = name;
@@ -17,6 +20,25 @@ export class Shuriken {
     this.mesh.scale.set(0.1, 0.1, 0.1);
     scene.add(this.mesh);
     collisionObserver.addColisionObject(this);
+  }
+
+  public addScene(): void {
+    scene.add(this.mesh);
+  }
+
+  public deleteScene(): void {
+    scene.remove(this.mesh);
+  }
+
+  public  setDirection(object: THREE.Object3D): void {
+      const shurikenDirection = new THREE.Vector3(0, 0, -1);
+      object.getWorldDirection(shurikenDirection);
+      
+      const shurikenWorldPosition = new THREE.Vector3();
+      object.getWorldPosition(shurikenWorldPosition);
+      this.mesh.position.copy(shurikenWorldPosition);
+
+      this.direction = shurikenDirection;
   }
 
   private buildGeometry(): THREE.BufferGeometry {
@@ -63,7 +85,25 @@ export class Shuriken {
     this.mesh.rotation.y += angleRad;
   };
 
-  public isColliding(): boolean {
-    return true;
+  public moveForward(distance: number): void {
+    this.mesh.position.addScaledVector(this.direction, distance);
   }
+
+  public isColliding(target: CollisionClassName): void {
+    if (target instanceof TrafficCone) {
+      if (aabbIntersects(this.mesh, target.getTrafficCone())) {
+        console.log("COLISION CON TRAFFIC CONE");
+        scene.remove(this.mesh);
+        collisionObserver.addObjectToRemove(this);
+      }
+    } else if (target instanceof Walls) {
+      if (aabbIntersects(this.mesh, target.getWall())) {
+        console.log("COLISION CON WALL");
+        scene.remove(this.mesh);
+        collisionObserver.addObjectToRemove(this);
+      }
+    } 
+  }
+
+
 }

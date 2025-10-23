@@ -24,15 +24,13 @@ export class PowerUp {
         console.log(x);
     } 
 
-    public isColliding(): boolean {
+    public isColliding(): void {
         if (aabbIntersects(this.car, this.box.mesh)) {
             console.log("COLISION CON POWER UP");
             this.setPowerUp();
             scene.remove(this.powerUp);
             collisionObserver.removeColisionObject(this);
-            return true;
         }
-        return false;
     }
 
 }

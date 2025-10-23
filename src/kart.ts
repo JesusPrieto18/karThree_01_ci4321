@@ -2,8 +2,12 @@ import * as THREE from 'three';
 import { scene } from './scene';
 import { solidWithWire } from './utils/utils';
 import { Shuriken } from './shuriken';
+import type { Proyectils } from './models/colisionClass';
+import { collisionObserver } from './utils/colliding';
 
 export class Kart {
+  private kart = new THREE.Group();
+
   private kartChassis: THREE.Group;
   private wheelAxisGroup: THREE.Group;
   private wheelsFrontAxis: THREE.Group;
@@ -12,10 +16,8 @@ export class Kart {
   private powerUps: number = -1;
   private isActivatePowerUps: boolean = false;
   private powerUpsList: THREE.Group = new THREE.Group();
-  private proyectilesList: THREE.Group = new THREE.Group();
-  private proyectilesDirection:THREE.Vector3[] = [];
-
-  private kart = new THREE.Group();
+  //private proyectilesList: THREE.Group = new THREE.Group();
+  private proyectilesList: Proyectils[] = [];
 
   constructor() {
     const height = 1;
@@ -74,10 +76,11 @@ export class Kart {
       wheel.position.set(pos[0], pos[1], pos[2]);
       this.wheelsBackAxis.add(wheel);
     });
+
     this.kart.add(this.wheelAxisGroup);
     scene.add(this.kart);
-
-    scene.add(this.proyectilesList);
+    collisionObserver.addColisionObject(this);
+    //scene.add(this.proyectilesList);
   };
 
   public getKart(): THREE.Group {
@@ -96,9 +99,11 @@ export class Kart {
     return this.wheelAxisGroup;
   };
 
+  /** 
   public getProyectilesList(): THREE.Group {
     return this.proyectilesList;
   };
+  */
 
   public getPowerUpsList(): THREE.Group {
     return this.powerUpsList;
@@ -118,6 +123,9 @@ export class Kart {
           shuriken1_case0.setZ(
             this.powerUpsList.position.z 
           );
+
+          // Guardar la instancia en el array de proyectiles y añadir su mesh a la lista de power ups
+          this.proyectilesList.push(shuriken1_case0);
           this.powerUpsList.add(shuriken1_case0.mesh);
           break;
         case 1:
@@ -129,6 +137,8 @@ export class Kart {
 
           shuriken2_case1.setX(2);
 
+          // Guardar instancias y añadir meshes
+          this.proyectilesList.push(shuriken1_case1, shuriken2_case1);
           this.powerUpsList.add(shuriken1_case1.mesh, shuriken2_case1.mesh);
 
           break;
@@ -142,6 +152,8 @@ export class Kart {
           shuriken2_case2.setPosition(2,0,1);
           shuriken3_case2.setPosition(-2,0,1);
 
+          // Guardar instancias y añadir meshes
+          this.proyectilesList.push(shuriken1_case2, shuriken2_case2, shuriken3_case2);
           this.powerUpsList.add(shuriken1_case2.mesh, shuriken2_case2.mesh, shuriken3_case2.mesh);
           break;
         case 3:
@@ -159,17 +171,29 @@ export class Kart {
   public launchPowerUps(): void {
     if (this.isActivatePowerUps && this.powerUpsList.children.length > 0) {
       console.log("Lanzando power ups");
-      const shuriken = this.powerUpsList.children.pop();
+      // Obtener el último proyectil (instancia) y su mesh
+      const shurikenMesh = this.powerUpsList.children.pop();
+      const proyectil = this.proyectilesList.pop();
 
+      if (!proyectil) {
+        console.warn('No proyectil disponible para lanzar');
+        return;
+      }
+
+      proyectil.setDirection(this.kart);
+      proyectil.addScene();
+
+      /** 
       const shurikenDirection = new THREE.Vector3(0, 0, -1);
       this.kart.getWorldDirection(shurikenDirection);
       
       const shurikenWorldPosition = new THREE.Vector3();
       this.kart.getWorldPosition(shurikenWorldPosition);
       shuriken!.position.copy(shurikenWorldPosition);
+
       
-      this.proyectilesDirection.push(shurikenDirection);
-      this.proyectilesList.add(shuriken!);
+      this.proyectilesDirection.push(shurikenDirection);*/
+      //this.proyectilesList.add(shuriken!);
 
       console.log(this.powerUpsList.children.length);
     } else {
@@ -200,10 +224,10 @@ export class Kart {
 
     this.powerUpsList.position.copy(this.kart.position);
 
-    for (let i = 0; i < this.proyectilesDirection.length; i++) {
-      const proyectil = this.proyectilesList.children[i];
-      proyectil.position.addScaledVector(this.proyectilesDirection[i], 0.1);
-      proyectil.rotation.y -= 0.1;
+    for (let i = 0; i < this.proyectilesList.length; i++) {
+      const proyectil = this.proyectilesList[i];
+      proyectil.moveForward(0.2);
+      proyectil.rotateY(0.1);
     };
   }
 }

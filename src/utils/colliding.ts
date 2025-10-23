@@ -1,14 +1,25 @@
-import * as THREE from 'three';
 import type { CollisionClassName } from '../models/colisionClass';
+import { Kart } from '../kart';
+import { PowerUp } from '../powerUps';
 
 export class Colliding {
     private colisionObjects: CollisionClassName[] = [];
-    private colisionDetected: CollisionClassName[] = [];
+    private objectsRemove: Set<CollisionClassName> = new Set();
 
     public addColisionObject(object: CollisionClassName): void {
         this.colisionObjects.push(object);
     }
+    
+    public addObjectToRemove(object: CollisionClassName): void {
+        this.objectsRemove.add(object);
+    }
 
+    public removeSelectedObjects(): void {
+        for (const obj of this.objectsRemove) {
+            this.removeColisionObject(obj);
+        }
+        this.objectsRemove.clear();
+    }
     public removeColisionObject(object: CollisionClassName): void {
         const index = this.colisionObjects.indexOf(object);
         if (index !== -1) {
@@ -18,10 +29,25 @@ export class Colliding {
     
     public checkCollision(): void {
         for (let i = 0; i < this.colisionObjects.length; i++) {
+            
             const objA = this.colisionObjects[i];
-            objA.isColliding();
+            if (objA instanceof PowerUp) {
+                    objA.isColliding();
+                    continue;
+            }
+            for (let j = 0; j < this.colisionObjects.length; j++) {
+                if (i === j) continue;
 
+                if (objA instanceof Kart) {
+                    continue;
+                }
+                
+                const objB = this.colisionObjects[j];
+                objA.isColliding(objB);
+            
+            }
         }
+        //console.log("detectando")
     }
 
 

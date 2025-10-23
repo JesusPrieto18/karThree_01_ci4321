@@ -35,7 +35,11 @@ export class Walls {
         collisionObserver.addColisionObject(this);
     }
 
-    public isColliding(): boolean {
-        return false;
+    public getWall(): THREE.Group {
+        return this.walls;
+    }
+    
+    public isColliding(): void {
+        
     }
 }

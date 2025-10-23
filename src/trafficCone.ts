@@ -9,6 +9,7 @@ export class TrafficCone {
     constructor() {
         this.buildTrafficCone();
     }
+    
     private buildTrafficCone(): void {
         // Cono de tráfico
         const coneHeight = 2;
@@ -61,8 +62,12 @@ export class TrafficCone {
         //this.trafficCone.position.y = 0.5;
     }
 
-    public isColliding(): boolean {
-        return false;
+    public getTrafficCone(): THREE.Group {
+        return this.trafficCone;
     }
-    
+
+    public isColliding(): void {
+        
+    }
+
 }

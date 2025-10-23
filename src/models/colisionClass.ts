@@ -2,6 +2,7 @@ import { PowerUp } from "../powerUps";
 import { Shuriken } from "../shuriken";
 import { TrafficCone } from "../trafficCone";
 import { Walls } from "../walls";
+import { Kart } from "../kart";
 
-
-export type CollisionClassName = PowerUp | Shuriken | TrafficCone | Walls;
+export type CollisionClassName = Kart | PowerUp | Shuriken | TrafficCone | Walls;
+export type Proyectils = Shuriken;
