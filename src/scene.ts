@@ -18,7 +18,7 @@ export function initScene(): void {
     0.1,
     1000
   );
-  camera.position.set(4, 3, 6); // 0,2,7
+  camera.position.set(0,5,-5); // 0,2,7
 
   // renderer
   renderer = new THREE.WebGLRenderer();

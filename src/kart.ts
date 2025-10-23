@@ -16,8 +16,8 @@ export class Kart {
   private powerUps: number = -1;
   private isActivatePowerUps: boolean = false;
   private powerUpsList: THREE.Group = new THREE.Group();
-  //private proyectilesList: THREE.Group = new THREE.Group();
   private proyectilesList: Proyectils[] = [];
+  private proyectilLaunched: Proyectils[] = []
 
   constructor() {
     const height = 1;
@@ -99,12 +99,6 @@ export class Kart {
     return this.wheelAxisGroup;
   };
 
-  /** 
-  public getProyectilesList(): THREE.Group {
-    return this.proyectilesList;
-  };
-  */
-
   public getPowerUpsList(): THREE.Group {
     return this.powerUpsList;
   };
@@ -171,29 +165,15 @@ export class Kart {
   public launchPowerUps(): void {
     if (this.isActivatePowerUps && this.powerUpsList.children.length > 0) {
       console.log("Lanzando power ups");
+
       // Obtener el último proyectil (instancia) y su mesh
-      const shurikenMesh = this.powerUpsList.children.pop();
-      const proyectil = this.proyectilesList.pop();
-
-      if (!proyectil) {
-        console.warn('No proyectil disponible para lanzar');
-        return;
-      }
-
-      proyectil.setDirection(this.kart);
-      proyectil.addScene();
-
-      /** 
-      const shurikenDirection = new THREE.Vector3(0, 0, -1);
-      this.kart.getWorldDirection(shurikenDirection);
+      const shuriken = this.powerUpsList.children.pop();
+      const index = this.proyectilesList.findIndex((proy) => proy.mesh === shuriken);
       
-      const shurikenWorldPosition = new THREE.Vector3();
-      this.kart.getWorldPosition(shurikenWorldPosition);
-      shuriken!.position.copy(shurikenWorldPosition);
+      this.proyectilesList[index].setDirection(this.kart);
+      this.proyectilesList[index].addScene();
 
-      
-      this.proyectilesDirection.push(shurikenDirection);*/
-      //this.proyectilesList.add(shuriken!);
+      this.proyectilLaunched.push(this.proyectilesList.pop()!);
 
       console.log(this.powerUpsList.children.length);
     } else {
@@ -223,9 +203,9 @@ export class Kart {
     }
 
     this.powerUpsList.position.copy(this.kart.position);
-
-    for (let i = 0; i < this.proyectilesList.length; i++) {
-      const proyectil = this.proyectilesList[i];
+    
+    for (let i = 0; i < this.proyectilLaunched.length; i++) {
+      const proyectil = this.proyectilLaunched[i];
       proyectil.moveForward(0.2);
       proyectil.rotateY(0.1);
     };

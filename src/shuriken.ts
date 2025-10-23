@@ -92,7 +92,7 @@ export class Shuriken {
   public isColliding(target: CollisionClassName): void {
     if (target instanceof TrafficCone) {
       if (aabbIntersects(this.mesh, target.getTrafficCone())) {
-        console.log("COLISION CON TRAFFIC CONE");
+        console.log("COLISION CON TRAFFIC CONE DESDE SHURIKEN");
         scene.remove(this.mesh);
         collisionObserver.addObjectToRemove(this);
       }

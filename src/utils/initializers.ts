@@ -18,6 +18,7 @@ export function createPowerUp(): void {
 
 export function createTrafficCone(): void {
   const tc = new TrafficCone();
+  tc.setZ(10)
 
 }
 

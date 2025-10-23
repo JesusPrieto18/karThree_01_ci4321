@@ -1,6 +1,9 @@
 import * as THREE from 'three';
-import { solidWithWire } from './utils/utils';
+import { aabbIntersects, solidWithWire } from './utils/utils';
 import { scene } from './scene';
+import type { CollisionClassName } from './models/colisionClass';
+import { Shuriken } from './shuriken';
+import { collisionObserver } from './utils/colliding';
 
 export let trafficCone: THREE.Group;
 
@@ -59,15 +62,37 @@ export class TrafficCone {
         this.trafficCone.position.set(0, (baseHeight + coneHeight)*0.5 / 2, 0);
 
         this.trafficCone.add(new THREE.AxesHelper(2));
+        collisionObserver.addColisionObject(this);
         //this.trafficCone.position.y = 0.5;
     }
 
     public getTrafficCone(): THREE.Group {
         return this.trafficCone;
     }
+    public setPosition(x: number, y: number, z: number): void {
+        this.trafficCone.position.set(x, y, z);
+    }
 
-    public isColliding(): void {
-        
+    public setX(x: number): void {
+        this.trafficCone.position.x = x;
+    }
+
+    public setY(y: number): void {
+        this.trafficCone.position.y = y;
+    }
+    
+    public setZ(z: number): void {
+        this.trafficCone.position.z = z;
+    }
+
+    public isColliding(target: CollisionClassName): void {
+        if (target instanceof Shuriken) {
+          if (aabbIntersects(this.trafficCone, target.mesh)) {
+            console.log("COLISION CON SHURIKEN DESDE TRAFFIC CONE");
+            scene.remove(this.trafficCone);
+            collisionObserver.addObjectToRemove(this);
+          }
+        } 
     }
 
 }

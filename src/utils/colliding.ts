@@ -10,6 +10,12 @@ export class Colliding {
         this.colisionObjects.push(object);
     }
     
+    public removeColisionObject(object: CollisionClassName): void {
+        const index = this.colisionObjects.indexOf(object);
+        if (index !== -1) {
+            this.colisionObjects.splice(index, 1);
+        }
+    }
     public addObjectToRemove(object: CollisionClassName): void {
         this.objectsRemove.add(object);
     }
@@ -20,21 +26,16 @@ export class Colliding {
         }
         this.objectsRemove.clear();
     }
-    public removeColisionObject(object: CollisionClassName): void {
-        const index = this.colisionObjects.indexOf(object);
-        if (index !== -1) {
-            this.colisionObjects.splice(index, 1);
-        }
-    }
-    
+
     public checkCollision(): void {
         for (let i = 0; i < this.colisionObjects.length; i++) {
-            
             const objA = this.colisionObjects[i];
+            //console.log(objA)
             if (objA instanceof PowerUp) {
                     objA.isColliding();
                     continue;
             }
+
             for (let j = 0; j < this.colisionObjects.length; j++) {
                 if (i === j) continue;
 
@@ -48,6 +49,7 @@ export class Colliding {
             }
         }
         //console.log("detectando")
+        this.removeSelectedObjects();
     }
 
 
