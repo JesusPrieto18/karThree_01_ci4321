@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { scene } from './scene';
 import { vertices, faces, colors } from './shurikenInfo';
 import { collisionObserver } from './utils/colliding';
+import { aabbIntersects } from './utils/utils';
+import { kart } from './utils/initializers';
 export class Shuriken {
   public mesh: THREE.Mesh;
   public name?: string;
@@ -59,9 +61,9 @@ export class Shuriken {
   
   public rotateY(angleRad: number): void {
     this.mesh.rotation.y += angleRad;
-  }
+  };
 
-   public isColliding(): boolean {
-    return false;  
+  public isColliding(): boolean {
+    return true;
   }
 }

@@ -18,8 +18,8 @@ export class PowerUp {
     }
     
     public setPowerUp():void {
-        const x = Math.round(Math.random() * 3);
-        //const x = 2;
+        //const x = Math.round(Math.random() * 3);
+        const x = 0;
         kart.setPowerUps(x);
         console.log(x);
     } 

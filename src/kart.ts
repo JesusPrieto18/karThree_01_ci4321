@@ -96,13 +96,21 @@ export class Kart {
     return this.wheelAxisGroup;
   };
 
+  public getProyectilesList(): THREE.Group {
+    return this.proyectilesList;
+  };
+
+  public getPowerUpsList(): THREE.Group {
+    return this.powerUpsList;
+  };
+
   public setPowerUps(count: number): void {
     if (!this.isActivatePowerUps) {
       this.powerUps = count;
       this.isActivatePowerUps = true;
 
       this.powerUpsList.position.copy(this.kart.position);
-
+      console.log(this.powerUpsList.position);
       switch (this.powerUps) {
         case 0:
           // Activar un solo shuriken
@@ -171,7 +179,7 @@ export class Kart {
     }
   }
 
-  public animate(): void {
+  public animatePowerUps(): void {
     if (this.isActivatePowerUps) {
       this.powerUpsList.children.forEach((powerUp) => {
         powerUp.rotation.y -= 0.1;
@@ -182,8 +190,11 @@ export class Kart {
       case 0:
         this.powerUpsList.rotation.copy(this.kart.rotation);
         break;
-      default:
+      case 1:
+      case 2:
         this.powerUpsList.rotation.y += 0.05;
+        break;
+      default:
         break;
     }
 

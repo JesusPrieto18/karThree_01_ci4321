@@ -6,7 +6,7 @@ export function animate(): void {
   //controls.update();
   updateControls();
   collisionObserver.checkCollision();
-  kart.animate();
+  kart.animatePowerUps();
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
 }

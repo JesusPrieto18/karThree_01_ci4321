@@ -69,12 +69,13 @@ export function updateControls(): void {
   });
   // Girar las ruedas delanteras, se llaman back porque se usa de referencia las coordenadas de la pantalla
   kart.getWheelsBackAxis().rotation.y = steeringAngle;
+  /** 
   // Actualizar la posición de la cámara según el modo seleccionado
   changeCameraPosition(cameraMode, rMode);
   if (cameraMode === 0) {
     camera.lookAt(kart.getKart().position);
   }
-
+  */
 }
 
 const changeCameraPosition = (cameraMode: number | undefined, rMode: number | undefined) => {
@@ -107,15 +108,6 @@ const changeCameraPosition = (cameraMode: number | undefined, rMode: number | un
     camera.rotation.x = 0;
     camera.rotation.z = 0;
   }
-    /**
-  // Actualizar cámara
-  const distanceBehind = 5;
-  const height = 2;
-
-  camera.position.x = kart.getKart().position.x - Math.sin(kart.getKart().rotation.y) * distanceBehind;
-  camera.position.z = kart.getKart().position.z - Math.cos(kart.getKart().rotation.y) * distanceBehind;
-  camera.position.y = kart.getKart().position.y + height;
-  camera.lookAt(kart.getKart().position);*/
 }
 
 
