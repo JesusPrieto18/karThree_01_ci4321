@@ -7,9 +7,10 @@ import type { CollisionClassName } from './models/colisionClass';
 import { TrafficCone } from './trafficCone';
 import { Walls } from './walls';
 export class Shuriken {
-  public mesh: THREE.Mesh;
-  public name?: string;
+  private mesh: THREE.Mesh;
+  private name?: string;
   private direction: THREE.Vector3 = new THREE.Vector3(0, 0, -1);
+  private crashed: boolean = false;
 
   constructor(name?: string) {
     this.name = name;
@@ -22,6 +23,9 @@ export class Shuriken {
     collisionObserver.addColisionObject(this);
   }
 
+  public getBody(): THREE.Mesh {
+    return this.mesh;
+  }
   public addScene(): void {
     scene.add(this.mesh);
   }
@@ -89,9 +93,13 @@ export class Shuriken {
     this.mesh.position.addScaledVector(this.direction, distance);
   }
 
+  public setCrashed(): boolean {
+    return this.crashed;
+  }
+
   public isColliding(target: CollisionClassName): void {
     if (target instanceof TrafficCone) {
-      if (aabbIntersects(this.mesh, target.getTrafficCone())) {
+      if (aabbIntersects(this.mesh, target.getBody())) {
         console.log("COLISION CON TRAFFIC CONE DESDE SHURIKEN");
         if (this.mesh.removeFromParent) {
           this.mesh.removeFromParent();
@@ -102,7 +110,7 @@ export class Shuriken {
         collisionObserver.addObjectToRemove(this);
       }
     } else if (target instanceof Walls) {
-      if (aabbIntersects(this.mesh, target.getWall())) {
+      if (aabbIntersects(this.mesh, target.getBody())) {
         console.log("COLISION CON WALL");
         scene.remove(this.mesh);
         collisionObserver.addObjectToRemove(this);

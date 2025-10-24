@@ -66,7 +66,7 @@ export class TrafficCone {
         //this.trafficCone.position.y = 0.5;
     }
 
-    public getTrafficCone(): THREE.Group {
+    public getBody(): THREE.Group {
         return this.trafficCone;
     }
     public setPosition(x: number, y: number, z: number): void {
@@ -87,7 +87,7 @@ export class TrafficCone {
 
     public isColliding(target: CollisionClassName): void {
         if (target instanceof Shuriken) {
-          if (aabbIntersects(this.trafficCone, target.mesh)) {
+          if (aabbIntersects(this.trafficCone, target.getBody())) {
             console.log("COLISION CON SHURIKEN DESDE TRAFFIC CONE");
             scene.remove(this.trafficCone);
             collisionObserver.addObjectToRemove(this);

@@ -8,13 +8,17 @@ import { kart } from './utils/initializers';
 export class PowerUp {
     private powerUp = new THREE.Group();
     private box: Box;
-    private car: THREE.Group = kart.getKart();
+    private car: THREE.Group = kart.getBody();
     constructor() {
         this.box = new Box();
         this.powerUp.add(this.box.mesh);
         scene.add(this.powerUp);
         collisionObserver.addColisionObject(this);
         console.log(this.car);
+    }
+
+    public getBody(): THREE.Group {
+        return this.powerUp;
     }
     
     public setPowerUp():void {
