@@ -23,7 +23,7 @@ export class Kart {
   private reboundVelocity: THREE.Vector3 = new THREE.Vector3();
   private damping: number = 10; // más bajo = rebote se corta rápido, más alto = desliza más
   private reboundStrength: number = 0.004;
-
+  
   constructor() {
     const height = 1;
     const length = 1;
@@ -119,9 +119,7 @@ export class Kart {
         case 0:
           // Activar un solo shuriken
           const shuriken1_case0 = new Shuriken();
-          shuriken1_case0.setZ(
-            this.powerUpsList.position.z 
-          );
+          shuriken1_case0.setPosition(0,0,-2);
 
           // Guardar la instancia en el array de proyectiles y añadir su mesh a la lista de power ups
           this.proyectilesList.push(shuriken1_case0);
@@ -181,11 +179,13 @@ export class Kart {
 
       // Mover la instancia del proyectil lanzado al array de proyectiles lanzados
       this.proyectilLaunched.push(this.proyectilesList.pop()!);
-      
+
+      if (this.powerUpsList.children.length === 0) {
+        this.isActivatePowerUps = false;
+        this.powerUps = -1;
+      }
       console.log(this.powerUpsList.children.length);
     } else {
-      this.isActivatePowerUps = false;
-      this.powerUps = -1;
       console.log("No tienes power ups para lanzar");
     }
   }
@@ -225,8 +225,8 @@ export class Kart {
     
     for (let i = 0; i < this.proyectilLaunched.length; i++) {
       const proyectil = this.proyectilLaunched[i];
-      //proyectil.moveForward(0.2);
-      //proyectil.rotateY(0.1);
+      proyectil.moveForward(0.2);
+      proyectil.rotateY(0.1);
     };
     
   }

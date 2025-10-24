@@ -11,6 +11,7 @@ const maxSteering = 0.185// límite de giro
 const steeringSpeed = 0.03; // velocidad de giro 
 let cameraMode: number = 0;
 let rMode: number = 0; // 0: tercera persona, 1: primera persona
+let godMode: boolean = false;
 
 export function setupControls(): void {
   window.addEventListener('keydown', e => keys[e.key] = true);
@@ -26,7 +27,20 @@ export function setupControls(): void {
       rMode = (rMode + 1) % 2; // Alternar entre 0 y 1
       changeCameraPosition(cameraMode, rMode);
     }
-  });}
+  });
+  window.addEventListener('keypress', e => {
+    if (e.key === 'g' || e.key === 'G') {
+      console.log("Tecla G presionada");
+      if (godMode) {
+        console.log("GodMode desactivado");
+      } else {
+        console.log("GodMode activado");
+      }
+      godMode = !godMode;
+    }
+  });
+}
+
 
 export function updateControls(): void {
   // Acelerar / frenar
@@ -53,7 +67,27 @@ export function updateControls(): void {
     kart.launchPowerUps();
     keys[' '] = false;
   }
+  // GodMode - Lanzar shuriken sin límite
+  if (keys['g'] || keys['G']) godMode = !godMode;
 
+  if (godMode) {
+    if (keys['0']) {
+      kart.setPowerUps(0);
+      keys['0'] = false;
+    }
+    if (keys['1']) {
+      kart.setPowerUps(1);
+      keys['1'] = false;
+    }
+    if (keys['2']) {
+      kart.setPowerUps(2);
+      keys['2'] = false;
+    } 
+    if (keys['3']) {
+      kart.setPowerUps(3);
+      keys['3'] = false;
+    }
+  }
   kart.getBody().position.x += Math.sin(kart.getBody().rotation.y) * speed;
   kart.getBody().position.z += Math.cos(kart.getBody().rotation.y) * speed;
   //console.log("MOVIENDO KART");
