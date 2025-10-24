@@ -1,45 +1,63 @@
 import * as THREE from 'three';
-import { solidWithWire } from './utils/utils';
+import { aabbIntersects, solidWithWire, resolvePenetration } from './utils/utils';
 import { scene } from './scene';
 import { collisionObserver } from './utils/colliding';
+import { Kart } from './kart';
+import type { CollisionClassName } from './models/colisionClass';
+import { Shuriken } from './shuriken';
 
 export class Walls { 
-    private walls: THREE.Group;
+    private wall: THREE.Group;
+    private wallThickness: number;
+    private wallHeight: number;
+    private wallLength: number;
 
-    constructor() {
-        const wallHeight = 2;
-        const wallThickness = 0.05;
-        const wallLength = 10;
+    constructor(length: number = 10 , height: number = 2, thickness: number = 0.05) {
+        this.wallHeight = height;
+        this.wallThickness = thickness;
+        this.wallLength = length;
 
-        const wallGeometry1 = new THREE.BoxGeometry(wallLength, wallHeight, wallThickness);
+        const wallGeometry1 = new THREE.BoxGeometry(this.wallLength, this.wallHeight, this.wallThickness);
         const wallColor = 0x506468; // Color marrón para las paredes
+        this.wall = solidWithWire(wallGeometry1, wallColor, false);
+        this.wall.add(new THREE.AxesHelper(3));
 
-        const wall1 = solidWithWire(wallGeometry1, wallColor, false);
-        wall1.position.set(0, 0, -wallLength/2); // Pared trasera
-
-        const wall2 = solidWithWire(wallGeometry1, wallColor, false);
-        wall2.position.set(0, 0, wallLength/2); // Pared delantera
-
-        const wall3 = solidWithWire(wallGeometry1, wallColor, false);
-        wall3.position.set(wallLength/2, 0, 0); // Pared izquierda
-        wall3.rotation.y = Math.PI / 2;
-
-        const wall4 = solidWithWire(wallGeometry1, wallColor, false);
-        wall4.position.set(-wallLength/2, 0, 0); // Pared derecha
-        wall4.rotation.y = Math.PI / 2;
-
-        this.walls = new THREE.Group();
-        this.walls.add(wall1, wall2, wall3, wall4);
-        this.walls.position.y = wallHeight / 2; // Elevar las paredes para que estén sobre el suelo
-        scene.add(this.walls);
+        scene.add(this.wall);
         collisionObserver.addColisionObject(this);
     }
 
-    public getWall(): THREE.Group {
-        return this.walls;
+    public setPosition(x: number, y: number, z: number): void {
+        this.wall.position.set(x, y, z);
+    }
+
+    public getLength(): number {
+        return this.wallLength;
+    }
+
+    public getHeight(): number {
+        return this.wallHeight;
     }
     
-    public isColliding(): void {
-        
+    public getThickness(): number {
+        return this.wallThickness;
+    }
+
+    public getBody(): THREE.Group {
+        return this.wall;
+    }
+
+    public setRotation(x: number, y: number, z: number): void {
+        this.wall.rotation.set(x, y, z);
+    }
+
+    public isColliding(object: CollisionClassName): void {
+        if (object instanceof Kart || object instanceof Shuriken) {
+            if (aabbIntersects(this.wall, object.getBody())) {
+                console.log("COLISION CON PARED");
+                resolvePenetration(object, this, 0.1);
+                object.setCrashed(this);
+                
+            }
+        }
     }
 }

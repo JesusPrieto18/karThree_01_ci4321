@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import type { CollisionClassName, ReflectObjects, StaticObjects } from "../models/colisionClass";
 
 // ---------- utilidades ----------
 export function solidWithWire(
@@ -87,4 +88,33 @@ export function aabbIntersects(a: THREE.Object3D, b: THREE.Object3D) {
 // Rotación de las ruedas según velocidad y radio
 export function calculateWheelRotation(speed: number, radius: number, direction: number): number {
     return (speed / (radius * Math.PI * 2)) * direction;
+}
+
+export function getObjectForwardWorld(object: CollisionClassName): THREE.Vector3 {
+  const body = object.getBody();
+  const forwardLocal = new THREE.Vector3(0, 0, 1); // frente del kart
+  const qWorld = body.getWorldQuaternion(new THREE.Quaternion());
+  return forwardLocal.applyQuaternion(qWorld).normalize();
+}
+
+export function reflectDirection(reflectObject: ReflectObjects, staticObject: StaticObjects): THREE.Vector3 {
+  const reflectVelocityInWorld = getObjectForwardWorld(reflectObject);
+  
+  const v = reflectVelocityInWorld.clone();     // dirección del objeto al chocar
+  const n = getObjectForwardWorld(staticObject); // normal pared
+  const dot = v.dot(n);
+  return v.sub(n.multiplyScalar(2 * dot)).normalize();
+  
+}
+
+export function resolvePenetration(reflect: ReflectObjects, staticObject: StaticObjects, strength = 0.05) {
+  const staticNormalWorld = getObjectForwardWorld(staticObject); // la normal de la pared en mundo
+  // posición mundial actual del objecto
+  const worldPos = reflect.getBody().getWorldPosition(new THREE.Vector3());
+  // empuja un poquito fuera
+  worldPos.addScaledVector(staticNormalWorld, strength);
+  // regresar a local del padre
+  const parent = reflect.getBody().parent!;
+  reflect.getBody().position.copy(parent.worldToLocal(worldPos.clone()));
+  
 }
