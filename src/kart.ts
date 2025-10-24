@@ -177,9 +177,11 @@ export class Kart {
       
       this.proyectilesList[index].setDirection(this.kart);
       this.proyectilesList[index].addScene();
+      this.proyectilesList[index].setLaunched(true);
 
+      // Mover la instancia del proyectil lanzado al array de proyectiles lanzados
       this.proyectilLaunched.push(this.proyectilesList.pop()!);
-
+      
       console.log(this.powerUpsList.children.length);
     } else {
       this.isActivatePowerUps = false;

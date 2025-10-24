@@ -51,13 +51,14 @@ export class Walls {
     }
 
     public isColliding(object: CollisionClassName): void {
-        if (object instanceof Kart || object instanceof Shuriken) {
+        if (object instanceof Kart) {
             if (aabbIntersects(this.wall, object.getBody())) {
                 console.log("COLISION CON PARED");
                 resolvePenetration(object, this, 0.1);
                 object.setCrashed(this);
                 
             }
+        
         }
     }
 }

@@ -13,7 +13,7 @@ setupControls();
 createFourWalls();
 //createTrafficCone();
 createKart();   
-//createPowerUp();
+createPowerUp();
 //createShuriken();
 
 animate();

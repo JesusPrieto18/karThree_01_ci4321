@@ -11,6 +11,7 @@ export class Shuriken {
   private name?: string;
   private direction: THREE.Vector3 = new THREE.Vector3(0, 0, -1);
   private crashed: boolean = false;
+  private launched: boolean = false;
 
   constructor(name?: string) {
     this.name = name;
@@ -97,6 +98,15 @@ export class Shuriken {
     return this.crashed;
   }
 
+  public setLaunched(launched: boolean): void {
+    console.log("Shuriken lanzado:", launched);
+    this.launched = launched;
+  }
+  
+  public getLaunched(): boolean {
+    return this.launched;
+  }
+
   public isColliding(target: CollisionClassName): void {
     if (target instanceof TrafficCone) {
       if (aabbIntersects(this.mesh, target.getBody())) {
@@ -109,7 +119,7 @@ export class Shuriken {
         //scene
         collisionObserver.addObjectToRemove(this);
       }
-    } else if (target instanceof Walls) {
+    } else if (target instanceof Walls && this.getLaunched()) {
       if (aabbIntersects(this.mesh, target.getBody())) {
         console.log("COLISION CON WALL");
         scene.remove(this.mesh);
@@ -117,6 +127,5 @@ export class Shuriken {
       }
     } 
   }
-
 
 }
