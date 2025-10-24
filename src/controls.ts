@@ -4,7 +4,7 @@ import { camera } from './scene.ts';
 
 const keys: Record<string, boolean> = {};
 let speed = 0;
-const maxSpeed = 0.2;
+const maxSpeed = 0.1;
 const turnSpeed = 0.04;
 let steeringAngle = 0;
 const maxSteering = 0.185// límite de giro
@@ -33,16 +33,15 @@ export function updateControls(): void {
   if (keys['ArrowDown']) speed = Math.max(-maxSpeed/2, speed - 0.005);
   if (keys['ArrowUp']) speed = Math.min(maxSpeed, speed + 0.005);
   if (!keys['ArrowUp'] && !keys['ArrowDown']) speed *= 0.95;
-
   // Rotar sobre su eje
   if (keys['ArrowRight']) {steeringAngle = Math.max(steeringAngle - steeringSpeed, -maxSteering)
     if (keys['ArrowUp'] || keys['ArrowDown']) {
-      kart.getKart().rotation.y -= turnSpeed * (speed / maxSpeed);
+      kart.getBody().rotation.y -= turnSpeed * (speed / maxSpeed);
     }
   }
   if (keys['ArrowLeft']) {steeringAngle = Math.min(steeringAngle + steeringSpeed, maxSteering)
     if (keys['ArrowUp'] || keys['ArrowDown']) {
-      kart.getKart().rotation.y += turnSpeed * (speed / maxSpeed);
+      kart.getBody().rotation.y += turnSpeed * (speed / maxSpeed);
     }
   }
   if (!keys['ArrowLeft'] && !keys['ArrowRight']) {
@@ -54,9 +53,12 @@ export function updateControls(): void {
     kart.launchPowerUps();
     keys[' '] = false;
   }
-  kart.getKart().position.x += Math.sin(kart.getKart().rotation.y) * speed;
-  kart.getKart().position.z += Math.cos(kart.getKart().rotation.y) * speed;
 
+  kart.getBody().position.x += Math.sin(kart.getBody().rotation.y) * speed;
+  kart.getBody().position.z += Math.cos(kart.getBody().rotation.y) * speed;
+  //console.log("MOVIENDO KART");
+  
+  
   kart.getWheelsFrontAxis().children.forEach((wheel) => {
     const rotationDirection = 1;
     const radius = wheel.userData.radius ?? 0.3; // Default to 0.3 if not set
@@ -84,25 +86,25 @@ const changeCameraPosition = (cameraMode: number | undefined, rMode: number | un
     const distanceBehind = 3;
     const height = 2;
     if (rMode === 0) {
-      camera.position.x = kart.getKart().position.x - Math.sin(kart.getKart().rotation.y) * distanceBehind;
-      camera.position.z = kart.getKart().position.z - Math.cos(kart.getKart().rotation.y) * distanceBehind;
-      camera.position.y = kart.getKart().position.y + height;
+      camera.position.x = kart.getBody().position.x - Math.sin(kart.getBody().rotation.y) * distanceBehind;
+      camera.position.z = kart.getBody().position.z - Math.cos(kart.getBody().rotation.y) * distanceBehind;
+      camera.position.y = kart.getBody().position.y + height;
     }else if (rMode === 1) {
-      camera.position.x = kart.getKart().position.x + Math.sin(kart.getKart().rotation.y) * distanceBehind ;
-      camera.position.z = kart.getKart().position.z + Math.cos(kart.getKart().rotation.y) * distanceBehind ;
-      camera.position.y = kart.getKart().position.y + height;
+      camera.position.x = kart.getBody().position.x + Math.sin(kart.getBody().rotation.y) * distanceBehind ;
+      camera.position.z = kart.getBody().position.z + Math.cos(kart.getBody().rotation.y) * distanceBehind ;
+      camera.position.y = kart.getBody().position.y + height;
     }
   } else if (cameraMode === 1) {
     const height = 1.5;
     const forwardOffset = 0.2;
-    camera.position.x = kart.getKart().position.x + Math.sin(kart.getKart().rotation.y) * forwardOffset;
-    camera.position.z = kart.getKart().position.z + Math.cos(kart.getKart().rotation.y) * forwardOffset;
-    camera.position.y = kart.getKart().position.y + height;
+    camera.position.x = kart.getBody().position.x + Math.sin(kart.getBody().rotation.y) * forwardOffset;
+    camera.position.z = kart.getBody().position.z + Math.cos(kart.getBody().rotation.y) * forwardOffset;
+    camera.position.y = kart.getBody().position.y + height;
     if (rMode === 0) {
       // Vista primera persona (dentro del kart.getKart())
-      camera.rotation.y = kart.getKart().rotation.y + Math.PI;
+      camera.rotation.y = kart.getBody().rotation.y + Math.PI;
     }else if (rMode === 1) {
-      camera.rotation.y = kart.getKart().rotation.y;
+      camera.rotation.y = kart.getBody().rotation.y;
     }
     // Interpolación de rotación - paralela al kart.getKart()
     camera.rotation.x = 0;
