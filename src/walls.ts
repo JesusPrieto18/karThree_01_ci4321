@@ -4,7 +4,6 @@ import { scene } from './scene';
 import { collisionObserver } from './utils/colliding';
 import { Kart } from './kart';
 import type { CollisionClassName } from './models/colisionClass';
-import { Shuriken } from './shuriken';
 
 export class Walls { 
     private wall: THREE.Group;

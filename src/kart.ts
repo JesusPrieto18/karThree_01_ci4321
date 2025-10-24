@@ -225,8 +225,8 @@ export class Kart {
     
     for (let i = 0; i < this.proyectilLaunched.length; i++) {
       const proyectil = this.proyectilLaunched[i];
-      proyectil.moveForward(0.2);
-      proyectil.rotateY(0.1);
+      //proyectil.moveForward(0.2);
+      //proyectil.rotateY(0.1);
     };
     
   }
