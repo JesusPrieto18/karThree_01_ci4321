@@ -186,7 +186,7 @@ export class Kart {
   public animatePowerUps(): void {
     if (this.isActivatePowerUps) {
       this.powerUpsList.children.forEach((powerUp) => {
-        powerUp.rotation.y -= 0.1;
+        powerUp.rotation.y -= 0.01;
       });
     }
 
@@ -196,7 +196,7 @@ export class Kart {
         break;
       case 1:
       case 2:
-        this.powerUpsList.rotation.y += 0.05;
+        this.powerUpsList.rotation.y -= 0.01;
         break;
       default:
         break;
@@ -209,6 +209,7 @@ export class Kart {
       proyectil.moveForward(0.2);
       proyectil.rotateY(0.1);
     };
+    
   }
 }
 

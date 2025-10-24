@@ -93,7 +93,12 @@ export class Shuriken {
     if (target instanceof TrafficCone) {
       if (aabbIntersects(this.mesh, target.getTrafficCone())) {
         console.log("COLISION CON TRAFFIC CONE DESDE SHURIKEN");
-        scene.remove(this.mesh);
+        if (this.mesh.removeFromParent) {
+          this.mesh.removeFromParent();
+        } else if (this.mesh.parent) {
+          this.mesh.parent.remove(this.mesh);
+        }
+        //scene
         collisionObserver.addObjectToRemove(this);
       }
     } else if (target instanceof Walls) {
