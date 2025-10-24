@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { scene } from './scene';
-import { solidWithWire } from './utils/utils';
+import {solidWithWire, reflectDirection } from './utils/utils';
 import { Shuriken } from './shuriken';
-import type { Proyectils } from './models/colisionClass';
+import type {Proyectils, StaticObjects } from './models/colisionClass';
 import { collisionObserver } from './utils/colliding';
 
 export class Kart {
@@ -18,6 +18,11 @@ export class Kart {
   private powerUpsList: THREE.Group = new THREE.Group();
   private proyectilesList: Proyectils[] = [];
   private proyectilLaunched: Proyectils[] = []
+
+  private crashed: boolean = false;
+  private reboundVelocity: THREE.Vector3 = new THREE.Vector3();
+  private damping: number = 10; // más bajo = rebote se corta rápido, más alto = desliza más
+  private reboundStrength: number = 0.004;
 
   constructor() {
     const height = 1;
@@ -83,7 +88,7 @@ export class Kart {
     //scene.add(this.proyectilesList);
   };
 
-  public getKart(): THREE.Group {
+  public getBody(): THREE.Group {
     return this.kart;
   };
 
@@ -120,7 +125,7 @@ export class Kart {
 
           // Guardar la instancia en el array de proyectiles y añadir su mesh a la lista de power ups
           this.proyectilesList.push(shuriken1_case0);
-          this.powerUpsList.add(shuriken1_case0.mesh);
+          this.powerUpsList.add(shuriken1_case0.getBody());
           break;
         case 1:
           // Activar dos shurikens
@@ -133,7 +138,7 @@ export class Kart {
 
           // Guardar instancias y añadir meshes
           this.proyectilesList.push(shuriken1_case1, shuriken2_case1);
-          this.powerUpsList.add(shuriken1_case1.mesh, shuriken2_case1.mesh);
+          this.powerUpsList.add(shuriken1_case1.getBody(), shuriken2_case1.getBody());
 
           break;
         case 2:
@@ -148,7 +153,7 @@ export class Kart {
 
           // Guardar instancias y añadir meshes
           this.proyectilesList.push(shuriken1_case2, shuriken2_case2, shuriken3_case2);
-          this.powerUpsList.add(shuriken1_case2.mesh, shuriken2_case2.mesh, shuriken3_case2.mesh);
+          this.powerUpsList.add(shuriken1_case2.getBody(), shuriken2_case2.getBody(), shuriken3_case2.getBody());
           break;
         case 3:
           // Activar bomba
@@ -168,7 +173,7 @@ export class Kart {
 
       // Obtener el último proyectil (instancia) y su mesh
       const shuriken = this.powerUpsList.children.pop();
-      const index = this.proyectilesList.findIndex((proy) => proy.mesh === shuriken);
+      const index = this.proyectilesList.findIndex((proy) => proy.getBody() === shuriken);
       
       this.proyectilesList[index].setDirection(this.kart);
       this.proyectilesList[index].addScene();
@@ -181,6 +186,18 @@ export class Kart {
       this.powerUps = -1;
       console.log("No tienes power ups para lanzar");
     }
+  }
+
+  public getCrashed(): boolean {
+    return this.crashed;
+  }
+
+  public setCrashed(staticObject: StaticObjects): void {
+    this.reboundVelocity = reflectDirection(this, staticObject);
+
+    // asigna velocidad inicial de rebote
+    this.reboundVelocity.copy(this.reboundVelocity.multiplyScalar(this.reboundStrength));
+    this.crashed = true;
   }
 
   public animatePowerUps(): void {
@@ -210,6 +227,33 @@ export class Kart {
       proyectil.rotateY(0.1);
     };
     
+  }
+
+  public animateCrash(): void {
+    // Lógica de animación para el choque
+    if (this.crashed) {
+      if (this.reboundVelocity.lengthSq() > 0.0001) {
+        // Mover el kart según la velocidad de rebote
+
+        // 1. obtener posición global actual
+        const worldPos = this.kart.getWorldPosition(new THREE.Vector3());
+
+        // 2. aplicar la velocidad de rebote este frame
+        worldPos.add(this.reboundVelocity);
+
+        // 3. volver a local del padre
+        const parent = this.kart.parent!;
+        this.kart.position.copy(parent.worldToLocal(worldPos.clone()));
+
+        // 4. frenar la velocidad para que el rebote muera suavemente
+        
+        this.reboundVelocity.multiplyScalar(this.damping);
+        this.kart.rotation.y += Math.PI / 180 * 2; // rotar un poco al rebotar
+      } else if (this.reboundVelocity.lengthSq() < 0.0001) {
+        this.crashed = false;
+        //this.reboundVelocity.set(0, 0, 0);
+      }
+    }
   }
 }
 
