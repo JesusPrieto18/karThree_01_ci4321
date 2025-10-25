@@ -9,7 +9,7 @@ export let controls: OrbitControls;
 export function initScene(): void {
   // scene
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x202733);
+  scene.background = new THREE.Color(0x87ceeb);
 
   // camera
   camera = new THREE.PerspectiveCamera(
@@ -18,7 +18,7 @@ export function initScene(): void {
     0.1,
     1000
   );
-  camera.position.set(0,5,-5); // 0,2,7
+  camera.position.set(0,50,60); // 0,2,7
 
   // renderer
   renderer = new THREE.WebGLRenderer();
