@@ -10,11 +10,11 @@ export let trafficCone: THREE.Group;
 
 export class TrafficCone {
     private trafficCone = new THREE.Group();
-    constructor() {
-        this.buildTrafficCone();
+    constructor(addColision: boolean = true) {
+        this.buildTrafficCone(addColision);
     }
-    
-    private buildTrafficCone(): void {
+
+    private buildTrafficCone(addColision: boolean): void {
         // Cono de tráfico
         const coneHeight = 2;
         const coneRadius = 0.5;
@@ -63,7 +63,9 @@ export class TrafficCone {
         this.trafficCone.position.set(0, (baseHeight + coneHeight)*0.5 / 2, 0);
 
         this.trafficCone.add(new THREE.AxesHelper(2));
-        collisionObserver.addColisionObject(this);
+        if (addColision){
+            collisionObserver.addColisionObject(this);
+        }
         //this.trafficCone.position.y = 0.5;
     }
 
