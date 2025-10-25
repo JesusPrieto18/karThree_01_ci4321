@@ -6,6 +6,6 @@ import { Kart } from "../kart";
 import { Bomb } from "../bomb";
 
 export type CollisionClassName = Kart | PowerUp | Shuriken | TrafficCone | Walls | Bomb;
-export type Proyectils = Shuriken | Bomb;
+export type Proyectils = Shuriken;
 export type ReflectObjects = Kart | Shuriken;
 export type StaticObjects = Walls;

@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import type { CollisionClassName, ReflectObjects, StaticObjects } from "../models/colisionClass";
+import { Shuriken } from "../shuriken";
 
 // ---------- utilidades ----------
 export function solidWithWire(
@@ -90,6 +91,22 @@ export function calculateWheelRotation(speed: number, radius: number, direction:
     return (speed / (radius * Math.PI * 2)) * direction;
 }
 
+export function getMovementDirectionWorld(obj: ReflectObjects): THREE.Vector3 {
+  // Caso 1: el objeto tiene velocidad propia (proyectil)
+  if (obj instanceof Shuriken) {
+    const vel = obj.getVelocity(); // mundo
+    if (vel.lengthSq() > 0.000001) {
+      return vel.normalize();
+    }
+  }
+
+  // Caso 2: fallback estilo kart (usa +Z del cuerpo)
+  const body = obj.getBody();
+  const forwardLocal = new THREE.Vector3(0, 0, 1);
+  const qWorld = body.getWorldQuaternion(new THREE.Quaternion());
+  return forwardLocal.applyQuaternion(qWorld).normalize();
+}
+
 export function getObjectForwardWorld(object: CollisionClassName): THREE.Vector3 {
   const body = object.getBody();
   const forwardLocal = new THREE.Vector3(0, 0, 1); // frente del kart
@@ -98,16 +115,23 @@ export function getObjectForwardWorld(object: CollisionClassName): THREE.Vector3
 }
 
 export function reflectDirection(reflectObject: ReflectObjects, staticObject: StaticObjects): THREE.Vector3 {
-  const reflectVelocityInWorld = getObjectForwardWorld(reflectObject);
   
-  const v = reflectVelocityInWorld.clone();     // dirección del objeto al chocar
-  const n = getObjectForwardWorld(staticObject); // normal pared
+  const v = getMovementDirectionWorld(reflectObject).clone(); // dirección del que se mueve
+  let n = getObjectForwardWorld(staticObject).clone();    // normal "frontal" de la pared
+
+  // Asegurar que la normal esté enfrentando al objeto que llega.
+  // Si la normal apunta más o menos en la MISMA dirección que v (dot > 0),
+  // invertimos la normal, porque desde ese lado es la cara trasera de la pared.
+  if (v.dot(n) > 0) {
+    n.multiplyScalar(-1);
+  }
+
+  // Reflexión
   const dot = v.dot(n);
-  return v.sub(n.multiplyScalar(2 * dot)).normalize();
-  
+  return v.sub(n.multiplyScalar(2 * dot)).normalize();  
 }
 
-export function resolvePenetration(reflect: ReflectObjects, staticObject: StaticObjects, strength = 0.05) {
+export function resolvePenetrationKart(reflect: ReflectObjects, staticObject: StaticObjects, strength = 0.05) {
   const staticNormalWorld = getObjectForwardWorld(staticObject); // la normal de la pared en mundo
   // posición mundial actual del objecto
   const worldPos = reflect.getBody().getWorldPosition(new THREE.Vector3());
@@ -116,5 +140,33 @@ export function resolvePenetration(reflect: ReflectObjects, staticObject: Static
   // regresar a local del padre
   const parent = reflect.getBody().parent!;
   reflect.getBody().position.copy(parent.worldToLocal(worldPos.clone()));
-  
+
+}
+
+export function resolvePenetrationProyectil(
+  reflect: ReflectObjects,
+  staticObject: StaticObjects,
+  strength = 0.05
+) {
+  const body = reflect.getBody();
+
+  // dirección de llegada real, no la rotación visual
+  const v = getMovementDirectionWorld(reflect).clone();
+
+  // normal de la pared
+  let n = getObjectForwardWorld(staticObject).clone();
+
+  // si la normal y el movimiento miran más o menos al mismo lado,
+  // invertimos la normal para usar la cara adecuada
+  if (v.dot(n) > 0) {
+    n.multiplyScalar(-1);
+  }
+
+  // empuja ligeramente fuera
+  const worldPos = body.getWorldPosition(new THREE.Vector3());
+  worldPos.addScaledVector(n, strength);
+
+  // volver a coords locales del padre
+  const parent = body.parent!;
+  body.position.copy(parent.worldToLocal(worldPos.clone()));
 }
