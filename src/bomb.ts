@@ -10,7 +10,7 @@ export class Bomb {
   private mesh: THREE.Mesh;
   private name?: string;
 
-  private direction: THREE.Vector3 = new THREE.Vector3(0, 0, -1);
+  private direction: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
   private velocity: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
   private gravity: number = 9.8; // gravedad simulada
   private timer: number = 3; // segundos antes de explotar
@@ -53,14 +53,14 @@ export class Bomb {
 
   /** Define la dirección en base a un objeto (ej: el kart o jugador) */
 public setDirection(object: THREE.Object3D): void {
-  const dir = new THREE.Vector3(0, 0, -1);
+  const dir = new THREE.Vector3(0, 1, 2);
   object.getWorldDirection(dir);
 
   const pos = new THREE.Vector3();
   object.getWorldPosition(pos);
 
   // 👉 Offset hacia adelante (ajusta el valor según el tamaño del kart)
-  const offsetDistance = 1.2; // 1.2 metros o unidades hacia adelante
+  const offsetDistance = 2; // 1.2 metros o unidades hacia adelante
   const offset = dir.clone().multiplyScalar(offsetDistance);
 
   // Nueva posición: frente del kart
@@ -68,6 +68,7 @@ public setDirection(object: THREE.Object3D): void {
   this.mesh.position.copy(startPos);
 
   this.direction.copy(dir);
+  console.log('getWorldDirection:', dir);
 }
 
 
