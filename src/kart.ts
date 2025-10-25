@@ -229,37 +229,6 @@ export class Kart {
 
           this.powerUpsList.add(coffee1_case6.getBody(), coffee2_case6.getBody(), coffee3_case6.getBody());
           break;
-        case 4:
-          // Activar cafe
-          console.log("Cafe activado");
-          const coffee1_case4 = new Coffee();
-          coffee1_case4.setPosition(0, 0, -3);
-          this.powerUpsList.add(coffee1_case4.getBody());
-          break;
-        case 5:
-          // Activar dos cafe
-          console.log("Dos cafes activados");
-          const coffee1_case5 = new Coffee();
-          const coffee2_case5 = new Coffee();
-
-          coffee1_case5.setX(-3);
-          coffee2_case5.setX(3);
-
-          this.powerUpsList.add(coffee1_case5.getBody(), coffee2_case5.getBody());
-          break;
-        case 6:
-          // Activar tres cafe
-          console.log("Tres cafes activados");
-          const coffee1_case6 = new Coffee();
-          const coffee2_case6 = new Coffee();
-          const coffee3_case6 = new Coffee();
-          
-          coffee1_case6.setZ(-4);
-          coffee2_case6.setPosition(3,0,1);
-          coffee3_case6.setPosition(-3,0,1);
-
-          this.powerUpsList.add(coffee1_case6.getBody(), coffee2_case6.getBody(), coffee3_case6.getBody());
-          break;
       }
       scene.add(this.powerUpsList);
 
