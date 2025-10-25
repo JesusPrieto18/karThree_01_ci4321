@@ -132,6 +132,17 @@ export class Kart {
     return this.powerUpsList;
   };
 
+  public setX(x: number): void {
+    this.kart.position.x = x;
+  }
+
+  public setZ(z: number): void {
+    this.kart.position.z = z;
+  }
+
+  public setRotation(x: number, y: number, z: number): void {
+    this.kart.rotation.set(x, y, z);
+  }
   public setPowerUps(count: number): void {
     if (!this.isActivatePowerUps) {
       this.powerUps = count;
