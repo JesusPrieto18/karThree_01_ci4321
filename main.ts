@@ -10,9 +10,9 @@ createRaceTrack();
 //createObstacles();
 setupControls();
 //createWall();
-createFourWalls();
+//createFourWalls();
 //createTrafficCone();
-createKart();   
+//createKart();   
 createPowerUp();
 //createShuriken();
 
