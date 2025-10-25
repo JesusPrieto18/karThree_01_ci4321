@@ -179,7 +179,6 @@ public launchPowerUps(): void {
     const proyectil = this.proyectilesList[index];
 
     proyectil.addScene();
-    proyectil.setDirection(this.kart);
     proyectil.setLaunched(true);
 
     // Si es una bomba, le damos una velocidad inicial
@@ -191,6 +190,8 @@ public launchPowerUps(): void {
           Math.cos(this.kart.rotation.y) * 5
         )
       );
+    } else {
+      proyectil.setVelocity(this.kart);
     }
 
     // Mover del array de lista a lanzados
