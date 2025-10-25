@@ -1,9 +1,10 @@
 import * as THREE from 'three';
-import { aabbIntersects, solidWithWire } from './utils/utils';
+import { aabbIntersects, solidWithWire, resolvePenetrationKart, resolvePenetrationObstacles } from './utils/utils';
 import { scene } from './scene';
 import type { CollisionClassName } from './models/colisionClass';
 import { Shuriken } from './shuriken';
 import { collisionObserver } from './utils/colliding';
+import { Kart } from './kart';
 
 export let trafficCone: THREE.Group;
 
@@ -93,6 +94,14 @@ export class TrafficCone {
             collisionObserver.addObjectToRemove(this);
           }
         } 
+
+        if (target instanceof Kart) {
+            if (aabbIntersects(this.trafficCone, target.getBody())) {
+                console.log("COLISION CON KART DESDE TRAFFIC CONE");
+                resolvePenetrationObstacles(target, this, 0.1);
+                target.setCrashed(this);
+            }
+        }
     }
 
 }

@@ -8,4 +8,4 @@ import { Bomb } from "../bomb";
 export type CollisionClassName = Kart | PowerUp | Shuriken | TrafficCone | Walls | Bomb;
 export type Proyectils = Shuriken;
 export type ReflectObjects = Kart | Shuriken;
-export type StaticObjects = Walls;
+export type StaticObjects = Walls | TrafficCone;
