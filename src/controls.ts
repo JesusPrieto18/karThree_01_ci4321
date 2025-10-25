@@ -85,6 +85,20 @@ export function updateControls(): void {
       kart.setPowerUps(3);
       keys['3'] = false;
     }
+
+    if (keys['4']) {
+      kart.setPowerUps(4);
+      keys['4'] = false;
+    }
+    if (keys['5']) {
+      kart.setPowerUps(5);
+      keys['5'] = false;
+    }
+    if (keys['6']) {
+      kart.setPowerUps(6);
+      keys['6'] = false;
+    }
+    
     if (keys['-']) {
       kart.clearPowerUps();
     }

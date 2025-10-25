@@ -4,6 +4,7 @@ import {solidWithWire, reflectDirection } from './utils/utils';
 import { Shuriken } from './shuriken';
 import type {Proyectils, StaticObjects } from './models/colisionClass';
 import { collisionObserver } from './utils/colliding';
+import { Coffee } from './coffee';
 
 export class Kart {
   private kart = new THREE.Group();
@@ -18,7 +19,7 @@ export class Kart {
   private powerUpsList: THREE.Group = new THREE.Group();
   private proyectilesList: Proyectils[] = [];
   private proyectilLaunched: Proyectils[] = []
-
+  
   private crashed: boolean = false;
   private reboundVelocity: THREE.Vector3 = new THREE.Vector3();
   private damping: number = 10; // más bajo = rebote se corta rápido, más alto = desliza más
@@ -192,6 +193,37 @@ export class Kart {
           // Activar bomba
           console.log("Bomba activada");
           break;
+        case 4:
+          // Activar cafe
+          console.log("Cafe activado");
+          const coffee1_case4 = new Coffee();
+          coffee1_case4.setPosition(0, 0, -3);
+          this.powerUpsList.add(coffee1_case4.getBody());
+          break;
+        case 5:
+          // Activar dos cafe
+          console.log("Dos cafes activados");
+          const coffee1_case5 = new Coffee();
+          const coffee2_case5 = new Coffee();
+
+          coffee1_case5.setX(-3);
+          coffee2_case5.setX(3);
+
+          this.powerUpsList.add(coffee1_case5.getBody(), coffee2_case5.getBody());
+          break;
+        case 6:
+          // Activar tres cafe
+          console.log("Tres cafes activados");
+          const coffee1_case6 = new Coffee();
+          const coffee2_case6 = new Coffee();
+          const coffee3_case6 = new Coffee();
+          
+          coffee1_case6.setZ(-4);
+          coffee2_case6.setPosition(3,0,1);
+          coffee3_case6.setPosition(-3,0,1);
+
+          this.powerUpsList.add(coffee1_case6.getBody(), coffee2_case6.getBody(), coffee3_case6.getBody());
+          break;
       }
       scene.add(this.powerUpsList);
 
@@ -203,7 +235,7 @@ export class Kart {
   public launchPowerUps(): void {
     if (this.isActivatePowerUps && this.powerUpsList.children.length > 0) {
       console.log("Lanzando power ups");
-
+      
       // Obtener el último proyectil (instancia) y su mesh
       const shuriken = this.powerUpsList.children.pop();
       const index = this.proyectilesList.findIndex((proy) => proy.getBody() === shuriken);
@@ -255,10 +287,13 @@ export class Kart {
 
     switch (this.powerUps) {
       case 0:
+      case 4:
         this.powerUpsList.rotation.copy(this.kart.rotation);
         break;
       case 1:
       case 2:
+      case 5:
+      case 6:
         this.powerUpsList.rotation.y -= 0.01;
         break;
       default:
