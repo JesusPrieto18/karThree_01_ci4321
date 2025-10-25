@@ -3,12 +3,6 @@ import { calculateWheelRotation} from './utils/utils';
 import { camera } from './scene.ts';
 
 const keys: Record<string, boolean> = {};
-let speed = 0;
-const maxSpeed = 0.1;
-const turnSpeed = 0.04;
-let steeringAngle = 0;
-const maxSteering = 0.185// límite de giro
-const steeringSpeed = 0.03; // velocidad de giro 
 let cameraMode: number = 0;
 let rMode: number = 0; // 0: tercera persona, 1: primera persona
 let godMode: boolean = false;
@@ -44,22 +38,22 @@ export function setupControls(): void {
 
 export function updateControls(): void {
   // Acelerar / frenar
-  if (keys['ArrowDown']) speed = Math.max(-maxSpeed/2, speed - 0.005);
-  if (keys['ArrowUp']) speed = Math.min(maxSpeed, speed + 0.005);
-  if (!keys['ArrowUp'] && !keys['ArrowDown']) speed *= 0.95;
+  if (keys['ArrowDown']) kart.speed = Math.max(-kart.maxSpeed/2, kart.speed - 0.005);
+  if (keys['ArrowUp']) kart.speed = Math.min(kart.maxSpeed, kart.speed + 0.005);
+  if (!keys['ArrowUp'] && !keys['ArrowDown']) kart.speed *= 0.95;
   // Rotar sobre su eje
-  if (keys['ArrowRight']) {steeringAngle = Math.max(steeringAngle - steeringSpeed, -maxSteering)
+  if (keys['ArrowRight']) {kart.steeringAngle = Math.max(kart.steeringAngle - kart.steeringSpeed, -kart.maxSteering)
     if (keys['ArrowUp'] || keys['ArrowDown']) {
-      kart.getBody().rotation.y -= turnSpeed * (speed / maxSpeed);
+      kart.getBody().rotation.y -= kart.turnSpeed * (kart.speed / kart.maxSpeed);
     }
   }
-  if (keys['ArrowLeft']) {steeringAngle = Math.min(steeringAngle + steeringSpeed, maxSteering)
+  if (keys['ArrowLeft']) {kart.steeringAngle = Math.min(kart.steeringAngle + kart.steeringSpeed, kart.maxSteering)
     if (keys['ArrowUp'] || keys['ArrowDown']) {
-      kart.getBody().rotation.y += turnSpeed * (speed / maxSpeed);
+      kart.getBody().rotation.y += kart.turnSpeed * (kart.speed / kart.maxSpeed);
     }
   }
   if (!keys['ArrowLeft'] && !keys['ArrowRight']) {
-    steeringAngle *= 0.8; // Volver al centro gradualmente
+    kart.steeringAngle *= 0.8; // Volver al centro gradualmente
   }
 
   // Lanzar shuriken
@@ -103,36 +97,36 @@ export function updateControls(): void {
       kart.clearPowerUps();
     }
   }
-  kart.getBody().position.x += Math.sin(kart.getBody().rotation.y) * speed;
-  kart.getBody().position.z += Math.cos(kart.getBody().rotation.y) * speed;
+  kart.getBody().position.x += Math.sin(kart.getBody().rotation.y) * kart.speed;
+  kart.getBody().position.z += Math.cos(kart.getBody().rotation.y) * kart.speed;
   //console.log("MOVIENDO KART");
   
   
   kart.getWheelsFrontAxis().children.forEach((wheel) => {
     const rotationDirection = 1;
     const radius = wheel.userData.radius ?? 0.3; // Default to 0.3 if not set
-    wheel.rotation.x += calculateWheelRotation(speed, radius, rotationDirection); // radius es el radio de la rueda
+    wheel.rotation.x += calculateWheelRotation(kart.speed, radius, rotationDirection); // radius es el radio de la rueda
   });
   kart.getWheelsBackAxis().children.forEach((wheel) => {
     const rotationDirection = 1;
     const radius = wheel.userData.radius ?? 0.3; // Default to 0.3 if not set
-    wheel.rotation.x += calculateWheelRotation(speed, radius, rotationDirection); // radius es el radio de la rueda
+    wheel.rotation.x += calculateWheelRotation(kart.speed, radius, rotationDirection); // radius es el radio de la rueda
   });
   // Girar las ruedas delanteras, se llaman back porque se usa de referencia las coordenadas de la pantalla
-  kart.getWheelsBackAxis().rotation.y = steeringAngle;
-  /** 
+  kart.getWheelsBackAxis().rotation.y = kart.steeringAngle;
+  
   // Actualizar la posición de la cámara según el modo seleccionado
   changeCameraPosition(cameraMode, rMode);
   if (cameraMode === 0) {
-    camera.lookAt(kart.getKart().position);
+    camera.lookAt(kart.getBody().position);
   }
-  */
+
 }
 
 const changeCameraPosition = (cameraMode: number | undefined, rMode: number | undefined) => {
   if (cameraMode === 0) {
     // Vista tercera persona (detrás del kart.getKart())
-    const distanceBehind = 3;
+    const distanceBehind = 5;
     const height = 2;
     if (rMode === 0) {
       camera.position.x = kart.getBody().position.x - Math.sin(kart.getBody().rotation.y) * distanceBehind;
