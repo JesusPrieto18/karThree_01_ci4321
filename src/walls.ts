@@ -49,12 +49,12 @@ export class Walls {
         this.wall.rotation.set(x, y, z);
     }
 
-    public isColliding(object: CollisionClassName): void {
-        if (object instanceof Kart) {
-            if (aabbIntersects(this.wall, object.getBody())) {
+    public isColliding(target: CollisionClassName): void {
+        if (target instanceof Kart) {
+            if (aabbIntersects(this.wall, target.getBody())) {
                 console.log("COLISION CON PARED");
-                resolvePenetrationKart(object, this, 0.1);
-                object.setCrashed(this);
+                resolvePenetrationKart(target, this, 0.1);
+                target.setCrashed(this);
                 
             }
         

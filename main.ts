@@ -11,9 +11,9 @@ createRaceTrack();
 setupControls();
 //createWall();
 //createFourWalls();
-//createTrafficCone();
+createTrafficCone();
 createKart();   
-//createPowerUp();
+createPowerUp();
 //createShuriken();
 
 animate();

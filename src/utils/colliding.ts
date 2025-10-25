@@ -1,6 +1,5 @@
 import type { CollisionClassName } from '../models/colisionClass';
 import { Kart } from '../kart';
-import { PowerUp } from '../powerUps';
 
 export class Colliding {
     private colisionObjects: CollisionClassName[] = [];

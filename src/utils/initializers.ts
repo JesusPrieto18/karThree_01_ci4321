@@ -15,12 +15,13 @@ export function createKart(): void {
 
 export function createPowerUp(): void {
   const pu = new PowerUp();
+  pu.setPosition(0, 0, 10);
   listPowerUps.push(pu);
 }
 
 export function createTrafficCone(): void {
   const tc = new TrafficCone();
-  tc.setZ(10)
+  tc.setZ(5)
 
 }
 
