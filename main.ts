@@ -12,8 +12,8 @@ setupControls();
 //createWall();
 //createFourWalls();
 //createTrafficCone();
-//createKart();   
-createPowerUp();
+createKart();   
+//createPowerUp();
 //createShuriken();
 
 animate();

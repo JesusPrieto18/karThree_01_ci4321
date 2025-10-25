@@ -26,41 +26,65 @@ export class Kart {
   
   constructor() {
     const height = 1;
-    const length = 1;
-    const width = 2;
+    const length = 2;
+    const width = 4.5;
     const body = new THREE.BoxGeometry(length, height, width);
     body.translate(0, height / 3, 0);
-    const material_color = 0xff0000;
+    const material_color = 0xFFE900;
     this.kartChassis = solidWithWire(body, material_color, false);
     this.kartChassis.name = "kartChassis";
 
+    let capo = new THREE.CylinderGeometry(6.3,9,4.3,4) // 6.3,8.5,4.3,4
+    let material_capo = new THREE.MeshStandardMaterial({ color: material_color });
+    let mesh_capo = new THREE.Mesh(capo, material_capo);
+    mesh_capo.rotation.y = Math.PI / 4;
+    mesh_capo.scale.set(0.15,0.15,0.15);
+    mesh_capo.position.set(0,1.1,-0.7);
+    this.kartChassis.add(mesh_capo);
+
+    let tope = new THREE.BoxGeometry(0.6,0.2,1);
+    let material_tope = new THREE.MeshStandardMaterial({ color: material_color });
+    let mesh_tope = new THREE.Mesh(tope, material_tope);
+    mesh_tope.position.set(0,0.8,0.8);
+    mesh_tope.rotateX(Math.PI/16);
+    this.kartChassis.add(mesh_tope);
+
+    let color_ventana = 0x3F4444;
+    let ventana_frontal = new THREE.CylinderGeometry(6.3,9,4.2,4) // 6.3,8.5,4.3,4
+    let material_ventana = new THREE.MeshStandardMaterial({ color: color_ventana });
+    let mesh_ventanaFrontal = new THREE.Mesh(ventana_frontal, material_ventana);
+    mesh_ventanaFrontal.rotation.y = Math.PI / 4;
+    mesh_ventanaFrontal.scale.set(0.125,0.125,0.125);
+    mesh_ventanaFrontal.position.set(0,1.12,-0.55);
+    this.kartChassis.add(mesh_ventanaFrontal);
+
     this.kart.add(this.kartChassis);
-    this.kart.position.set(0, 0.5,-3)
+    this.kart.position.set(0, 0.6,-3)
     this.kart.add(new THREE.AxesHelper(3));
 
     this.wheelAxisGroup = new THREE.Group();
-    const wheelGeometry = new THREE.CylinderGeometry(0.3, 0.3, 0.2, 8);
+    const wheelGeometry = new THREE.CylinderGeometry(0.5, 0.5, 0.3, 8);
     const wheelMaterial = new THREE.MeshStandardMaterial({ color: 0x333333 });
     
     const wheelPositionsFront = [
-      [-1, -0.2, -0.8],
-      [1, -0.2, -0.8]
+      [-1.3, -0.2, -1.2],
+      [1.3, -0.2, -1.2]
     ];
     const wheelPositionsBack = [
-      [-1, -0.2, 0.8],
-      [1, -0.2, 0.8]
+      [-1.3, -0.2, 1.3],
+      [1.3, -0.2, 1.3]
     ];
     this.wheelsFrontAxis = new THREE.Group();
     this.wheelsBackAxis = new THREE.Group();
     
-    const bodyAxisFront = new THREE.BoxGeometry(2, 0.1, 0.1);
-    const bodyAxisBack = new THREE.BoxGeometry(2, 0.1, 0.1);
+    const bodyAxisFront = new THREE.BoxGeometry(3, 0.1, 0.1);
+    const bodyAxisBack = new THREE.BoxGeometry(3, 0.1, 0.1);
     
     const frontAxis = solidWithWire(bodyAxisFront, 0x0000ff, false);
     const backAxis = solidWithWire(bodyAxisBack, 0x0000ff, false);
     
-    frontAxis.position.set(0, -0.2, -0.8);
-    backAxis.position.set(0, -0.2, 0.8);
+    frontAxis.position.set(0, -0.2, -1.2);
+    backAxis.position.set(0, -0.2, 1.3);
     
     this.wheelsFrontAxis.add(frontAxis);
     this.wheelsBackAxis.add(backAxis);

@@ -4,13 +4,13 @@ import { collisionObserver } from './colliding';
 import { kart, listPowerUps } from './initializers';
 export function animate(): void {
   //controls.update();
-  //updateControls();
-  //kart.animatePowerUps();
-  //kart.animateCrash();
+  updateControls();
+  kart.animatePowerUps();
+  kart.animateCrash();
   for (const pu of listPowerUps) {
     pu.animate();
   };
-  //collisionObserver.checkCollision();
+  collisionObserver.checkCollision();
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
 }
