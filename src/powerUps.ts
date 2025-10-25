@@ -30,6 +30,10 @@ export class PowerUp {
         console.log(x);
     } 
 
+    public setPosition(x: number, y: number, z: number): void { 
+        this.powerUp.position.set(x, y, z);
+    }
+    
     public animate(): void {
       //this.box.getBody().rotation.x += 0.01;
       this.box.getBody().position.y = Math.sin(Date.now() * 0.002) * 0.5 + 0.55;

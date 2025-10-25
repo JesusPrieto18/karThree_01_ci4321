@@ -143,7 +143,7 @@ export class Kart {
         case 0:
           // Activar un solo shuriken
           const shuriken1_case0 = new Shuriken();
-          shuriken1_case0.setPosition(0,0,-2);
+          shuriken1_case0.setPosition(0,0,-3);
 
           // Guardar la instancia en el array de proyectiles y añadir su mesh a la lista de power ups
           this.proyectilesList.push(shuriken1_case0);
@@ -154,9 +154,9 @@ export class Kart {
           const shuriken1_case1 = new Shuriken();
           const shuriken2_case1 = new Shuriken();
 
-          shuriken1_case1.setX(-2);
+          shuriken1_case1.setX(-3);
 
-          shuriken2_case1.setX(2);
+          shuriken2_case1.setX(3);
 
           // Guardar instancias y añadir meshes
           this.proyectilesList.push(shuriken1_case1, shuriken2_case1);
@@ -169,9 +169,9 @@ export class Kart {
           const shuriken2_case2 = new Shuriken();
           const shuriken3_case2 = new Shuriken();
           
-          shuriken1_case2.setZ(-2);
-          shuriken2_case2.setPosition(2,0,1);
-          shuriken3_case2.setPosition(-2,0,1);
+          shuriken1_case2.setZ(-4);
+          shuriken2_case2.setPosition(3,0,1);
+          shuriken3_case2.setPosition(-3,0,1);
 
           // Guardar instancias y añadir meshes
           this.proyectilesList.push(shuriken1_case2, shuriken2_case2, shuriken3_case2);
