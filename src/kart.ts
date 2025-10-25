@@ -179,10 +179,14 @@ public launchPowerUps(): void {
     const proyectil = this.proyectilesList[index];
 
     proyectil.addScene();
+    if(proyectil instanceof Shuriken){
+      proyectil.setVelocity(this.kart);
+    }
     proyectil.setLaunched(true);
 
     // Si es una bomba, le damos una velocidad inicial
     if (proyectil instanceof Bomb) {
+      proyectil.setDirection(this.kart)
       proyectil.setVelocity(
         new THREE.Vector3(
           Math.sin(this.kart.rotation.y) * 5, // hacia adelante
