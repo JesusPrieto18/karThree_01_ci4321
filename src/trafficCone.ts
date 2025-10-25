@@ -4,6 +4,7 @@ import { scene } from './scene';
 import type { CollisionClassName } from './models/colisionClass';
 import { Shuriken } from './shuriken';
 import { collisionObserver } from './utils/colliding';
+import { Bomb } from './bomb';
 
 export let trafficCone: THREE.Group;
 
@@ -86,7 +87,7 @@ export class TrafficCone {
     }
 
     public isColliding(target: CollisionClassName): void {
-        if (target instanceof Shuriken) {
+        if (target instanceof Shuriken || (target instanceof Bomb && target.getLaunched() ) ) {
           if (aabbIntersects(this.trafficCone, target.getBody())) {
             console.log("COLISION CON SHURIKEN DESDE TRAFFIC CONE");
             scene.remove(this.trafficCone);

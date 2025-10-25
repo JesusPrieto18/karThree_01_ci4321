@@ -158,7 +158,7 @@ export class Kart {
           // Activar bomba
           console.log("Bomba activada");
           const bomb = new Bomb();
-          bomb.setPosition(0,0,-2);
+          bomb.setPosition(0,0.1,-2);
           this.proyectilesList.push(bomb);
           this.powerUpsList.add(bomb.getBody());
           break;

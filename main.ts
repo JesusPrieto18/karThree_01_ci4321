@@ -1,5 +1,5 @@
 import { scene, renderer, camera, initScene} from './src/scene.ts';
-import { createRaceTrack } from './src/racetrack.ts';
+import { createRaceTrack } from './src/utils/initializers.ts';
 import { createFourWalls, createKart, createPowerUp, createTrafficCone, createWall } from './src/utils/initializers.ts';
 import { setupControls, updateControls} from './src/controls.ts';
 import { createObstacles } from './src/obstacles.ts';
@@ -11,7 +11,7 @@ createRaceTrack();
 setupControls();
 //createWall();
 createFourWalls();
-//createTrafficCone();
+createTrafficCone();
 createKart();   
 createPowerUp();
 //createShuriken();

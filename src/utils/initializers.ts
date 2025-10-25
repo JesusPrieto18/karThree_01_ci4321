@@ -3,6 +3,8 @@ import { Kart } from "../kart";
 import { TrafficCone } from "../trafficCone";
 import { Walls } from "../walls";
 import { collisionObserver } from "./colliding";
+import { RaceTrack } from "../RaceTrackClass";
+
 
 // Initializacion
 export let kart: Kart;
@@ -42,4 +44,8 @@ export function createFourWalls() {
   wall3.setRotation(0, -Math.PI/2, 0)
   wall4.setRotation(0, Math.PI/2, 0);
 
+}
+
+export function createRaceTrack(){
+  const track = new RaceTrack();
 }
