@@ -54,6 +54,7 @@ export class Walls {
             if (aabbIntersects(this.wall, target.getBody())) {
                 console.log("COLISION CON PARED");
                 resolvePenetrationKart(target, this, 0.1);
+                target.speed *= 0,5;
                 target.setCrashed(this);
                 
             }

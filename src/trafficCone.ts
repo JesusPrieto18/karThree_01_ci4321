@@ -101,6 +101,7 @@ export class TrafficCone {
             if (aabbIntersects(this.trafficCone, target.getBody())) {
                 console.log("COLISION CON KART DESDE TRAFFIC CONE");
                 resolvePenetrationObstacles(target, this, 0.1);
+                target.speed *= 0.5; // Reduce la velocidad del kart al chocar con el cono
                 target.setCrashed(this);
             }
         }
