@@ -14,6 +14,22 @@ export class Kart {
   private wheelsFrontAxis: THREE.Group;
   private wheelsBackAxis: THREE.Group;
 
+  public speed = 0;
+  private originalMaxSpeed = 0.3;
+  public maxSpeed = 0.3;
+  public turnSpeed = 0.02;
+  public steeringAngle = 0;
+  public maxSteering = 0.15// límite de giro
+  public steeringSpeed = 0.02; // velocidad de giro 
+
+  private boostActive = false;        // estamos en boost?
+  private boostFalloff = false;       // estamos reduciendo de vuelta?
+  private boostEndTime = 0;           // cuándo debe terminar el boost (ms)
+
+  // tuning 
+  private boostedMaxSpeed = 0.8;      // tope máximo durante boost
+  private falloffRate = 0.002;        // qué tan rápido vuelve a la normal
+
   private powerUps: number = -1;
   private isActivatePowerUps: boolean = false;
   private powerUpsList: THREE.Group = new THREE.Group();
@@ -235,17 +251,30 @@ export class Kart {
   public launchPowerUps(): void {
     if (this.isActivatePowerUps && this.powerUpsList.children.length > 0) {
       console.log("Lanzando power ups");
-      
-      // Obtener el último proyectil (instancia) y su mesh
-      const shuriken = this.powerUpsList.children.pop();
-      const index = this.proyectilesList.findIndex((proy) => proy.getBody() === shuriken);
-      
-      this.proyectilesList[index].setVelocity(this.kart);
-      this.proyectilesList[index].addScene();
-      this.proyectilesList[index].setLaunched(true);
+      switch (this.powerUps) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+          // Obtener el último proyectil (instancia) y su mesh
+          const shuriken = this.powerUpsList.children.pop();
+          const index = this.proyectilesList.findIndex((proy) => proy.getBody() === shuriken);
+          
+          this.proyectilesList[index].setVelocity(this.kart);
+          this.proyectilesList[index].addScene();
+          this.proyectilesList[index].setLaunched(true);
 
-      // Mover la instancia del proyectil lanzado al array de proyectiles lanzados
-      this.proyectilLaunched.push(this.proyectilesList.pop()!);
+          // Mover la instancia del proyectil lanzado al array de proyectiles lanzados
+          this.proyectilLaunched.push(this.proyectilesList.pop()!);
+          break;
+        case 4:
+        case 5:
+        case 6:
+          this.powerUpsList.children.pop();
+          console.log("Lanzando cafe");
+          this.activateSpeedBoost(performance.now(), 3000);
+          break;
+      }
 
       if (this.powerUpsList.children.length === 0) {
         this.isActivatePowerUps = false;
@@ -257,9 +286,25 @@ export class Kart {
     }
   }
 
+  public activateSpeedBoost(now: number, durationMs: number = 3000) {
+    this.boostActive = true;
+    this.boostFalloff = false;
+
+    this.maxSpeed = this.boostedMaxSpeed; // subimos el límite
+    this.boostEndTime = now + durationMs;
+
+    // opcional: si ibas más lento que el nuevo máximo,
+    // dale un empujón para que se sienta el turbo instantáneo
+    if (this.speed < this.maxSpeed) {
+      this.speed = this.maxSpeed;
+    }
+  }
+
   public getCrashed(): boolean {
     return this.crashed;
   }
+
+  
   public clearPowerUps(): void {
     this.powerUpsList.children.forEach((powerUp) => {
       this.powerUpsList.remove(powerUp);
@@ -276,6 +321,31 @@ export class Kart {
     // asigna velocidad inicial de rebote
     this.reboundVelocity.copy(this.reboundVelocity.multiplyScalar(this.reboundStrength));
     this.crashed = true;
+  }
+
+  public updateBoost(nowMs: number) {
+    // 1. Chequear si el boost debería terminar
+    if (this.boostActive && nowMs >= this.boostEndTime) {
+      this.boostActive = false;
+      this.boostFalloff = true;
+    }
+
+    // 2. Fase de caída: reducir maxSpeed gradualmente
+    if (this.boostFalloff) {
+      // bajar el límite max poco a poco
+      this.maxSpeed -= this.falloffRate;
+
+      // asegurar que no bajemos por debajo de la normal
+      if (this.maxSpeed <= this.originalMaxSpeed) {
+        this.maxSpeed = this.originalMaxSpeed;
+        this.boostFalloff = false;
+      }
+
+      // IMPORTANTE: ajustar speed actual si quedó por encima
+      if (this.speed > this.maxSpeed) {
+        this.speed = this.maxSpeed;
+      }
+    }
   }
 
   public animatePowerUps(): void {
@@ -304,7 +374,7 @@ export class Kart {
     
     for (let i = 0; i < this.proyectilLaunched.length; i++) {
       const proyectil = this.proyectilLaunched[i];
-      proyectil.moveForward(0.15);
+      proyectil.moveForward(0.9);
       proyectil.rotateY(0.1);
     };
     
