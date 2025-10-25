@@ -2,8 +2,12 @@ import { updateControls } from '../controls';
 import { scene, camera, renderer, controls } from '../scene';
 import { collisionObserver } from './colliding';    
 import { kart, listPowerUps, decorators } from './initializers';
-export function animate(): void {
+
+export function animate(now: number): void {
   //controls.update();
+  scene.updateMatrixWorld(true);
+  
+  kart.updateBoost(now)
   updateControls();
   kart.animatePowerUps();
   kart.animateCrash();

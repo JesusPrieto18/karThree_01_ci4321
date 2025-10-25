@@ -4,6 +4,7 @@ import { TrafficCone } from "../trafficCone";
 import { Walls } from "../walls";
 import { collisionObserver } from "./colliding";
 import { USB } from "../usb";
+import { Coffee } from "../coffee";
 
 // Initializacion
 export let kart: Kart;
@@ -202,4 +203,9 @@ export function createConeSquare(
     tc.setZ(pos.z);
     trafficCones.push(tc);
   }
+}
+
+export function createCoffee() {
+  const coffee = new Coffee();
+  coffee.setPosition(0, 0, 0);
 }
