@@ -52,16 +52,33 @@ export class Bomb {
   }
 
   /** Define la dirección en base a un objeto (ej: el kart o jugador) */
-  public setDirection(object: THREE.Object3D): void {
-    const dir = new THREE.Vector3(0, 0, -1);
-    object.getWorldDirection(dir);
+public setDirection(object: THREE.Object3D): void {
+  const dir = new THREE.Vector3(0, 0, -1);
+  object.getWorldDirection(dir);
 
-    const pos = new THREE.Vector3();
-    object.getWorldPosition(pos);
+  const pos = new THREE.Vector3();
+  object.getWorldPosition(pos);
 
-    this.mesh.position.copy(pos);
-    this.direction.copy(dir);
-  }
+  // 👉 Offset hacia adelante (ajusta el valor según el tamaño del kart)
+  const offsetDistance = 1.2; // 1.2 metros o unidades hacia adelante
+  const offset = dir.clone().multiplyScalar(offsetDistance);
+
+  // Nueva posición: frente del kart
+  const startPos = pos.clone().add(offset);
+  this.mesh.position.copy(startPos);
+
+  this.direction.copy(dir);
+}
+
+
+  public moveForward(distance: number): void {
+  this.mesh.position.addScaledVector(this.direction, distance);
+}
+
+public rotateY(angleRad: number): void {
+  this.mesh.rotation.y += angleRad;
+}
+
 
   /** Asigna una velocidad inicial (por ejemplo, al lanzarla) */
   public setVelocity(initialVelocity: THREE.Vector3): void {
@@ -112,15 +129,20 @@ export class Bomb {
   public isColliding(target: CollisionClassName): void {
     if (this.exploded) return;
 
-    if (target instanceof TrafficCone && aabbIntersects(this.mesh, target.getBody())) {
-      console.log('💣 Colisión con TrafficCone');
-      this.explode();
+    if (target instanceof TrafficCone && this.getLaunched()){ 
+      if(aabbIntersects(this.mesh, target.getBody())){
+        console.log('💣 Colisión con TrafficCone');
+        this.explode();
+      }
     }
+    
+    else if (target instanceof Walls && this.getLaunched() ) {
 
-    if (target instanceof Walls && aabbIntersects(this.mesh, target.getBody())) {
-      console.log('Colisión con pared');
-      this.explode();
-    }
+      if( aabbIntersects(this.mesh, target.getBody()) ){
+        console.log('Colisión con pared');
+        this.explode();
+      };
+    };
   }
 
   /** Métodos auxiliares */

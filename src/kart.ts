@@ -4,6 +4,7 @@ import {solidWithWire, reflectDirection } from './utils/utils';
 import { Shuriken } from './shuriken';
 import type {Proyectils, StaticObjects } from './models/colisionClass';
 import { collisionObserver } from './utils/colliding';
+import { Bomb } from './bomb';
 
 export class Kart {
   private kart = new THREE.Group();
@@ -158,6 +159,10 @@ export class Kart {
         case 3:
           // Activar bomba
           console.log("Bomba activada");
+          const bomb = new Bomb();
+          bomb.setPosition(0,0,2);
+          this.proyectilesList.push(bomb);
+          this.powerUpsList.add(bomb.getBody());
           break;
       }
       scene.add(this.powerUpsList);
@@ -167,28 +172,40 @@ export class Kart {
     }
   }
 
-  public launchPowerUps(): void {
-    if (this.isActivatePowerUps && this.powerUpsList.children.length > 0) {
-      console.log("Lanzando power ups");
+public launchPowerUps(): void {
+  if (this.isActivatePowerUps && this.powerUpsList.children.length > 0) {
+    console.log("Lanzando power ups");
 
-      // Obtener el último proyectil (instancia) y su mesh
-      const shuriken = this.powerUpsList.children.pop();
-      const index = this.proyectilesList.findIndex((proy) => proy.getBody() === shuriken);
-      
-      this.proyectilesList[index].setDirection(this.kart);
-      this.proyectilesList[index].addScene();
-      this.proyectilesList[index].setLaunched(true);
+    const powerUpMesh = this.powerUpsList.children.pop();
+    const index = this.proyectilesList.findIndex((p) => p.getBody() === powerUpMesh);
+    const proyectil = this.proyectilesList[index];
 
-      // Mover la instancia del proyectil lanzado al array de proyectiles lanzados
-      this.proyectilLaunched.push(this.proyectilesList.pop()!);
-      
-      console.log(this.powerUpsList.children.length);
-    } else {
-      this.isActivatePowerUps = false;
-      this.powerUps = -1;
-      console.log("No tienes power ups para lanzar");
+    proyectil.setDirection(this.kart);
+    proyectil.addScene();
+    proyectil.setLaunched(true);
+
+    // Si es una bomba, le damos una velocidad inicial
+    if (proyectil instanceof Bomb) {
+      proyectil.setVelocity(
+        new THREE.Vector3(
+          Math.sin(this.kart.rotation.y) * 5, // hacia adelante
+          3,// ligeramente hacia arriba
+          Math.cos(this.kart.rotation.y) * 5
+        )
+      );
     }
+
+    // Mover del array de lista a lanzados
+    this.proyectilLaunched.push(this.proyectilesList.pop()!);
+    
+    console.log(this.powerUpsList.children.length);
+  } else {
+    this.isActivatePowerUps = false;
+    this.powerUps = -1;
+    console.log("No tienes power ups para lanzar");
   }
+}
+
 
   public getCrashed(): boolean {
     return this.crashed;
@@ -202,34 +219,43 @@ export class Kart {
     this.crashed = true;
   }
 
-  public animatePowerUps(): void {
-    if (this.isActivatePowerUps) {
-      this.powerUpsList.children.forEach((powerUp) => {
-        powerUp.rotation.y -= 0.01;
-      });
-    }
-
-    switch (this.powerUps) {
-      case 0:
-        this.powerUpsList.rotation.copy(this.kart.rotation);
-        break;
-      case 1:
-      case 2:
-        this.powerUpsList.rotation.y -= 0.01;
-        break;
-      default:
-        break;
-    }
-
-    this.powerUpsList.position.copy(this.kart.position);
-    
-    for (let i = 0; i < this.proyectilLaunched.length; i++) {
-      const proyectil = this.proyectilLaunched[i];
-      //proyectil.moveForward(0.2);
-      //proyectil.rotateY(0.1);
-    };
-    
+public animatePowerUps(deltaTime: number): void {
+  if (this.isActivatePowerUps) {
+    this.powerUpsList.children.forEach((powerUp) => {
+      powerUp.rotation.y -= 0.01;
+    });
   }
+
+  switch (this.powerUps) {
+    case 0:
+      this.powerUpsList.rotation.copy(this.kart.rotation);
+      break;
+    case 1:
+    case 2:
+      this.powerUpsList.rotation.y -= 0.01;
+      break;
+    case 3:
+      this.powerUpsList.rotation.copy(this.kart.rotation);
+      break;
+    default:
+      break;
+  }
+
+  this.powerUpsList.position.copy(this.kart.position);
+
+  // Actualizar proyectiles lanzados
+  for (let i = 0; i < this.proyectilLaunched.length; i++) {
+    const proyectil = this.proyectilLaunched[i];
+
+    if (proyectil instanceof Bomb) {
+      proyectil.update(deltaTime); // gravedad, explosión, etc.
+    } else {
+      proyectil.moveForward(0.2);
+      proyectil.rotateY(0.1);
+    }
+  }
+}
+
 
   public animateCrash(): void {
     // Lógica de animación para el choque
