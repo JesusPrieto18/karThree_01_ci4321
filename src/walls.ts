@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { aabbIntersects, solidWithWire, resolvePenetration } from './utils/utils';
+import { aabbIntersects, solidWithWire, resolvePenetrationKart } from './utils/utils';
 import { scene } from './scene';
 import { collisionObserver } from './utils/colliding';
 import { Kart } from './kart';
@@ -53,7 +53,7 @@ export class Walls {
         if (object instanceof Kart) {
             if (aabbIntersects(this.wall, object.getBody())) {
                 console.log("COLISION CON PARED");
-                resolvePenetration(object, this, 0.1);
+                resolvePenetrationKart(object, this, 0.1);
                 object.setCrashed(this);
                 
             }
