@@ -38,8 +38,8 @@ export function initScene(): void {
   //scene.add(dirHelper);
 
   // controles
-  controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
+  //controls = new OrbitControls(camera, renderer.domElement);
+  //controls.enableDamping = true;
 
   // resize
   window.addEventListener('resize', () => {
