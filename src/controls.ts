@@ -68,8 +68,6 @@ export function updateControls(): void {
     keys[' '] = false;
   }
   // GodMode - Lanzar shuriken sin límite
-  if (keys['g'] || keys['G']) godMode = !godMode;
-
   if (godMode) {
     if (keys['0']) {
       kart.setPowerUps(0);
@@ -86,6 +84,9 @@ export function updateControls(): void {
     if (keys['3']) {
       kart.setPowerUps(3);
       keys['3'] = false;
+    }
+    if (keys['-']) {
+      kart.clearPowerUps();
     }
   }
   kart.getBody().position.x += Math.sin(kart.getBody().rotation.y) * speed;
