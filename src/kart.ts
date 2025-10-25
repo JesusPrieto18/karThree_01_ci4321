@@ -219,7 +219,7 @@ public launchPowerUps(): void {
     this.crashed = true;
   }
 
-public animatePowerUps(deltaTime: number): void {
+public animatePowerUps(deltaTime: number = 0.016): void {
   if (this.isActivatePowerUps) {
     this.powerUpsList.children.forEach((powerUp) => {
       powerUp.rotation.y -= 0.01;
