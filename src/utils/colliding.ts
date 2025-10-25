@@ -1,6 +1,5 @@
 import type { CollisionClassName } from '../models/colisionClass';
 import { Kart } from '../kart';
-import { PowerUp } from '../powerUps';
 
 export class Colliding {
     private colisionObjects: CollisionClassName[] = [];
@@ -31,19 +30,16 @@ export class Colliding {
         for (let i = 0; i < this.colisionObjects.length; i++) {
             const objA = this.colisionObjects[i];
             //console.log(objA)
-            if (objA instanceof PowerUp) {
-                    objA.isColliding();
-                    continue;
-            }
 
             for (let j = 0; j < this.colisionObjects.length; j++) {
                 if (i === j) continue;
 
+                const objB = this.colisionObjects[j];
                 if (objA instanceof Kart) {
                     continue;
                 }
                 
-                const objB = this.colisionObjects[j];
+
                 objA.isColliding(objB);
             
             }

@@ -1,20 +1,21 @@
 import * as THREE from 'three';
-import { aabbIntersects, solidWithWire } from './utils/utils';
+import { aabbIntersects, solidWithWire, resolvePenetrationKart, resolvePenetrationObstacles } from './utils/utils';
 import { scene } from './scene';
 import type { CollisionClassName } from './models/colisionClass';
 import { Shuriken } from './shuriken';
 import { collisionObserver } from './utils/colliding';
+import { Kart } from './kart';
 import { Bomb } from './bomb';
 
 export let trafficCone: THREE.Group;
 
 export class TrafficCone {
     private trafficCone = new THREE.Group();
-    constructor() {
-        this.buildTrafficCone();
+    constructor(addColision: boolean = true) {
+        this.buildTrafficCone(addColision);
     }
-    
-    private buildTrafficCone(): void {
+
+    private buildTrafficCone(addColision: boolean): void {
         // Cono de tráfico
         const coneHeight = 2;
         const coneRadius = 0.5;
@@ -63,7 +64,9 @@ export class TrafficCone {
         this.trafficCone.position.set(0, (baseHeight + coneHeight)*0.5 / 2, 0);
 
         this.trafficCone.add(new THREE.AxesHelper(2));
-        collisionObserver.addColisionObject(this);
+        if (addColision){
+            collisionObserver.addColisionObject(this);
+        }
         //this.trafficCone.position.y = 0.5;
     }
 
@@ -94,6 +97,14 @@ export class TrafficCone {
             collisionObserver.addObjectToRemove(this);
           }
         } 
+
+        if (target instanceof Kart) {
+            if (aabbIntersects(this.trafficCone, target.getBody())) {
+                console.log("COLISION CON KART DESDE TRAFFIC CONE");
+                resolvePenetrationObstacles(target, this, 0.1);
+                target.setCrashed(this);
+            }
+        }
     }
 
 }

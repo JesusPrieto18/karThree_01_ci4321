@@ -6,8 +6,8 @@ export let raceTrack: THREE.Group;
 
 export function createRaceTrack(): void {
 
-    const raceTrackHeight = 10;
-    const raceTrackLength = 10;
+    const raceTrackHeight = 150;
+    const raceTrackLength = 150;
 
     const geometry = new THREE.PlaneGeometry(raceTrackHeight, raceTrackLength);
     const material_color = 0x6aa84f;

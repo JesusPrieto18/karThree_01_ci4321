@@ -114,6 +114,12 @@ export function getObjectForwardWorld(object: CollisionClassName): THREE.Vector3
   return forwardLocal.applyQuaternion(qWorld).normalize();
 }
 
+export function getPushDirection(objectA: CollisionClassName, objectB: CollisionClassName): THREE.Vector3 {
+  // dirección de A hacia B
+  const posA = objectA.getBody().getWorldPosition(new THREE.Vector3());
+  const posB = objectB.getBody().getWorldPosition(new THREE.Vector3());
+  return posB.sub(posA).normalize();
+}
 export function reflectDirection(reflectObject: ReflectObjects, staticObject: StaticObjects): THREE.Vector3 {
   
   const v = getMovementDirectionWorld(reflectObject).clone(); // dirección del que se mueve
@@ -169,4 +175,28 @@ export function resolvePenetrationProyectil(
   // volver a coords locales del padre
   const parent = body.parent!;
   body.position.copy(parent.worldToLocal(worldPos.clone()));
+}
+
+export function resolvePenetrationObstacles(
+  reflect: ReflectObjects,
+  obstacles: StaticObjects,
+  strength = 0.05
+) {
+  const pushDir = getPushDirection(obstacles, reflect); // cone -> kart
+  const worldPos = reflect.getBody().getWorldPosition(new THREE.Vector3());
+ 
+  //ANULAMOS el empuje vertical:
+  pushDir.y = 0;
+
+  //Nos aseguramos de que no sea un vector cero
+  if (pushDir.lengthSq() === 0) {
+    return; // están exactamente alineados en XZ, raro pero evita NaN
+  }
+
+  // sácalo un poquito lejos del cono
+  worldPos.addScaledVector(pushDir, strength);
+
+  // volver al espacio local del padre del kart
+  const parent = reflect.getBody().parent!;
+  reflect.getBody().position.copy(parent.worldToLocal(worldPos.clone()));
 }
