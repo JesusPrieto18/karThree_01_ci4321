@@ -2,16 +2,18 @@ import * as THREE from 'three';
 import { scene } from './scene';
 import { vertices, faces, colors } from './shurikenInfo';
 import { collisionObserver } from './utils/colliding';
-import { aabbIntersects } from './utils/utils';
+import { aabbIntersects, reflectDirection, resolvePenetrationKart, resolvePenetrationProyectil } from './utils/utils';
 import type { CollisionClassName } from './models/colisionClass';
 import { TrafficCone } from './trafficCone';
 import { Walls } from './walls';
 export class Shuriken {
   private mesh: THREE.Mesh;
   private name?: string;
-  private direction: THREE.Vector3 = new THREE.Vector3(0, 0, -1);
+  private velocity: THREE.Vector3 = new THREE.Vector3(0, 0, -1);
   private crashed: boolean = false;
   private launched: boolean = false;
+  private bounces: number = 0;
+
 
   constructor(name?: string) {
     this.name = name;
@@ -22,6 +24,7 @@ export class Shuriken {
     this.mesh.scale.set(0.1, 0.1, 0.1);
     scene.add(this.mesh);
     collisionObserver.addColisionObject(this);
+    this.mesh.add(new THREE.AxesHelper(3));
   }
 
   public getBody(): THREE.Mesh {
@@ -34,8 +37,11 @@ export class Shuriken {
   public deleteScene(): void {
     scene.remove(this.mesh);
   }
+  public getVelocity(): THREE.Vector3 {
+    return this.velocity.clone();
+  }
 
-  public  setDirection(object: THREE.Object3D): void {
+  public setVelocity(object: THREE.Object3D): void {
       const shurikenDirection = new THREE.Vector3(0, 0, -1);
       object.getWorldDirection(shurikenDirection);
       
@@ -43,7 +49,7 @@ export class Shuriken {
       object.getWorldPosition(shurikenWorldPosition);
       this.mesh.position.copy(shurikenWorldPosition);
 
-      this.direction = shurikenDirection;
+      this.velocity = shurikenDirection;
   }
 
   private buildGeometry(): THREE.BufferGeometry {
@@ -91,7 +97,7 @@ export class Shuriken {
   };
 
   public moveForward(distance: number): void {
-    this.mesh.position.addScaledVector(this.direction, distance);
+    this.mesh.position.addScaledVector(this.velocity, distance);
   }
 
   public setCrashed(): boolean {
@@ -116,14 +122,22 @@ export class Shuriken {
         } else if (this.mesh.parent) {
           this.mesh.parent.remove(this.mesh);
         }
-        //scene
         collisionObserver.addObjectToRemove(this);
       }
     } else if (target instanceof Walls && this.getLaunched()) {
       if (aabbIntersects(this.mesh, target.getBody())) {
         console.log("COLISION CON WALL");
-        scene.remove(this.mesh);
-        collisionObserver.addObjectToRemove(this);
+
+        resolvePenetrationProyectil(this, target);
+        const speed = this.velocity.length(); // magnitud actual (por ejemplo, 0.5 o 1)
+        const reflectedDir = reflectDirection(this, target); // vector unitario con la nueva dirección
+        this.velocity.copy(reflectedDir.multiplyScalar(speed * 0.8)); // 0.8 = pérdida de energía
+        this.bounces += 1;
+
+        if (this.bounces > 2) {
+          scene.remove(this.mesh);
+          collisionObserver.addObjectToRemove(this);
+        }
       }
     } 
   }
