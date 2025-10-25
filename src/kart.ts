@@ -178,8 +178,8 @@ public launchPowerUps(): void {
     const index = this.proyectilesList.findIndex((p) => p.getBody() === powerUpMesh);
     const proyectil = this.proyectilesList[index];
 
-    proyectil.setDirection(this.kart);
     proyectil.addScene();
+    proyectil.setDirection(this.kart);
     proyectil.setLaunched(true);
 
     // Si es una bomba, le damos una velocidad inicial
