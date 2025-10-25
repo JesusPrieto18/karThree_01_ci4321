@@ -32,7 +32,7 @@ export function initScene(): void {
   scene.add(dir);
 
   // helpers
-  //scene.add(new THREE.AxesHelper(20));
+  scene.add(new THREE.AxesHelper(20));
   scene.add(new THREE.GridHelper(20, 20));
   const dirHelper = new THREE.DirectionalLightHelper(dir, 2, 0xff0000);
   //scene.add(dirHelper);

@@ -6,7 +6,8 @@ import { collisionObserver } from "./colliding";
 
 // Initializacion
 export let kart: Kart;
- 
+export let listPowerUps: PowerUp[] = [];
+
 export function createKart(): void {
   kart = new Kart();
 
@@ -14,7 +15,7 @@ export function createKart(): void {
 
 export function createPowerUp(): void {
   const pu = new PowerUp();
-
+  listPowerUps.push(pu);
 }
 
 export function createTrafficCone(): void {

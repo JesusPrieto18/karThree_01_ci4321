@@ -30,6 +30,12 @@ export class PowerUp {
         console.log(x);
     } 
 
+    public animate(): void {
+      //this.box.getBody().rotation.x += 0.01;
+      this.box.getBody().position.y = Math.sin(Date.now() * 0.002) * 0.5 + 0.55;
+      this.box.getBody().rotation.y += 0.01;
+    }
+    
     public isColliding(object: CollisionClassName): void {
         if (object instanceof Kart && aabbIntersects(object.getBody(), this.box.getBody())) {
             console.log("COLISION CON POWER UP");
