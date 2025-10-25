@@ -173,7 +173,7 @@ export class Kart {
       const shuriken = this.powerUpsList.children.pop();
       const index = this.proyectilesList.findIndex((proy) => proy.getBody() === shuriken);
       
-      this.proyectilesList[index].setDirection(this.kart);
+      this.proyectilesList[index].setVelocity(this.kart);
       this.proyectilesList[index].addScene();
       this.proyectilesList[index].setLaunched(true);
 
@@ -193,7 +193,16 @@ export class Kart {
   public getCrashed(): boolean {
     return this.crashed;
   }
-
+  public clearPowerUps(): void {
+    this.powerUpsList.children.forEach((powerUp) => {
+      this.powerUpsList.remove(powerUp);
+    });
+    this.proyectilesList = [];
+    this.isActivatePowerUps = false;
+    this.powerUps = -1;
+    console.log("Power ups limpiados");
+  }
+  
   public setCrashed(staticObject: StaticObjects): void {
     this.reboundVelocity = reflectDirection(this, staticObject);
 
@@ -225,7 +234,7 @@ export class Kart {
     
     for (let i = 0; i < this.proyectilLaunched.length; i++) {
       const proyectil = this.proyectilLaunched[i];
-      proyectil.moveForward(0.2);
+      proyectil.moveForward(0.15);
       proyectil.rotateY(0.1);
     };
     
