@@ -1,9 +1,8 @@
-import { scene, renderer, camera, initScene} from './src/scene.ts';
-import { createConeLine, createConeSquare, createFourWalls, createHeartCones, 
+import {initScene} from './src/scene.ts';
+import {createConeSquare, createFourWalls, createHeartCones, 
          createKart, createMultiplePowerUpsRandom, createPowerUp, createTrafficCone, 
          createUSB, createRaceTrack } from './src/utils/initializers.ts';
-import { setupControls, updateControls} from './src/controls.ts';
-import { createObstacles } from './src/obstacles.ts';
+import { setupControls} from './src/controls.ts';
 import { animate } from './src/utils/animation.ts';
 
 initScene();

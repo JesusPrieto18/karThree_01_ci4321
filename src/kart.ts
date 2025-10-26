@@ -7,6 +7,20 @@ import { collisionObserver } from './utils/colliding';
 import { Coffee } from './coffee';
 import { Bomb } from './bomb';
 
+/**
+ * Kart - visual and gameplay representation of the player's kart.
+ *
+ * Responsibilities / workflow:
+ *  - Build the kart visual (chassis, body parts, wheels) and add it to the scene.
+ *  - Expose helpers to get body/wheels and to control position/rotation.
+ *  - Manage movement state (speed, steering) and boost lifecycle.
+ *  - Manage power-ups: create, store, launch and clean up projectiles/consumables.
+ *  - Integrate with the collision observer by registering itself on construction.
+ *
+ * Notes:
+ *  - Many fields are public for quick iteration (speed, maxSpeed). Consider using getters/setters
+ *    if stricter encapsulation is required later.
+ */
 export class Kart {
   private kart = new THREE.Group();
 
@@ -15,39 +29,41 @@ export class Kart {
   private wheelsFrontAxis: THREE.Group;
   private wheelsBackAxis: THREE.Group;
 
+  // Movement state (public for easy access from controls)
   public speed = 0;
   private originalMaxSpeed = 0.3;
   public maxSpeed = 0.3;
   public turnSpeed = 0.02;
   public steeringAngle = 0;
-  public maxSteering = 0.15// límite de giro
-  public steeringSpeed = 0.02; // velocidad de giro 
+  public maxSteering = 0.15 // steering limit
+  public steeringSpeed = 0.02; // steering speed
 
-  private boostActive = false;        // estamos en boost?
-  private boostFalloff = false;       // estamos reduciendo de vuelta?
-  private boostEndTime = 0;           // cuándo debe terminar el boost (ms)
+  // Boost / turbo state
+  private boostActive = false;        // is boost currently active?
+  private boostFalloff = false;       // is boost returning to normal?
+  private boostEndTime = 0;           // timestamp (ms) when boost should end
 
-  // tuning 
-  private boostedMaxSpeed = 0.8;      // tope máximo durante boost
-  private falloffRate = 0.002;        // qué tan rápido vuelve a la normal
+  // Boost tuning parameters
+  private boostedMaxSpeed = 0.8;      // max speed allowed during boost
+  private falloffRate = 0.002;        // rate at which maxSpeed falls back to normal
 
+  // Power-up state
   private powerUps: number = -1;
   private isActivatePowerUps: boolean = false;
-  private powerUpsList: THREE.Group = new THREE.Group();
-  private proyectilesList: Proyectils[] = [];
-  private proyectilLaunched: Proyectils[] = []
+  private powerUpsList: THREE.Group = new THREE.Group(); // visual holder for active power-ups
+  private proyectilesList: Proyectils[] = []; // stored projectile instances (not yet launched)
+  private proyectilLaunched: Proyectils[] = []  // projectiles that have been launched
 
-  private crashed: boolean = false;
-  private reboundVelocity: THREE.Vector3 = new THREE.Vector3();
-  private damping: number = 10; // más bajo = rebote se corta rápido, más alto = desliza más
-  private reboundStrength: number = 0.004;
-  
+  /**
+   * Constructor - builds the kart's visual components (chassis, extras, wheels),
+   * adds the kart to the global scene and registers it with the collision observer.
+   */
   constructor() {
     const height = 1;
     const length = 2;
     const width = 4.5;
 
-    // Chassis
+    // Build chassis geometry and material, then wrap with helper that provides a visible wire
     const body = new THREE.BoxGeometry(length, height, width);
     body.translate(0, height / 3, 0);
     const material_color = 0xFFE900;
@@ -55,7 +71,8 @@ export class Kart {
     this.kartChassis = solidWithWire(body, material_color, false);
     this.kartChassis.name = "kartChassis";
 
-    let capo = new THREE.CylinderGeometry(6.3,9,4.3,4) // 6.3,8.5,4.3,4
+    // Decorative elements (hood, trims, lights, windows, exhaust) added to the chassis
+    let capo = new THREE.CylinderGeometry(6.3,9,4.3,4); // decorative hood
     let material_capo = new THREE.MeshStandardMaterial({ color: material_color });
     let mesh_capo = new THREE.Mesh(capo, material_capo);
     mesh_capo.rotation.y = Math.PI / 4;
@@ -115,7 +132,7 @@ export class Kart {
     this.kartChassis.add(mesh_luces_delanteras2);
 
     let color_ventana = 0x3F4444;
-    let ventana_frontal = new THREE.CylinderGeometry(6.3,9,4.2,4) // 6.3,8.5,4.3,4
+    let ventana_frontal = new THREE.CylinderGeometry(6.3,9,4.2,4); // window shapes
     let material_ventana = new THREE.MeshStandardMaterial({ color: color_ventana });
     let mesh_ventanaFrontal = new THREE.Mesh(ventana_frontal, material_ventana);
     mesh_ventanaFrontal.rotation.y = Math.PI / 4;
@@ -123,21 +140,21 @@ export class Kart {
     mesh_ventanaFrontal.position.set(0,1.12,-0.55);
     this.kartChassis.add(mesh_ventanaFrontal);
 
-    let ventana_trasera = new THREE.CylinderGeometry(6.3,9,4.2,4) // 6.3,8.5,4.3,4
+    let ventana_trasera = new THREE.CylinderGeometry(6.3,9,4.2,4);
     let mesh_ventanaTrasera = new THREE.Mesh(ventana_trasera, material_ventana);
     mesh_ventanaTrasera.rotation.y = Math.PI / 4;
     mesh_ventanaTrasera.scale.set(0.125,0.125,0.125);
     mesh_ventanaTrasera.position.set(0,1.12,-0.85);
     this.kartChassis.add(mesh_ventanaTrasera);
 
-    let ventana_lateral_izquierda = new THREE.CylinderGeometry(6.3,9,4.2,4) // 6.3,8.5,4.3,4
+    let ventana_lateral_izquierda = new THREE.CylinderGeometry(6.3,9,4.2,4);
     let mesh_ventanaLateralIzquierda = new THREE.Mesh(ventana_lateral_izquierda, material_ventana);
     mesh_ventanaLateralIzquierda.rotation.y = Math.PI / 4;
     mesh_ventanaLateralIzquierda.scale.set(0.125,0.125,0.125);
     mesh_ventanaLateralIzquierda.position.set(-0.15,1.12,-0.7);
     this.kartChassis.add(mesh_ventanaLateralIzquierda);
 
-    let ventana_lateral_derecha = new THREE.CylinderGeometry(6.3,9,4.2,4) // 6.3,8.5,4.3,4
+    let ventana_lateral_derecha = new THREE.CylinderGeometry(6.3,9,4.2,4);
     let mesh_ventanaLateralDerecha = new THREE.Mesh(ventana_lateral_derecha, material_ventana);
     mesh_ventanaLateralDerecha.rotation.y = Math.PI / 4;
     mesh_ventanaLateralDerecha.scale.set(0.125,0.125,0.125);
@@ -148,14 +165,16 @@ export class Kart {
     let material_tubo_escape = new THREE.MeshStandardMaterial({ color: color_gris });
     let mesh_tubo_escape = new THREE.Mesh(tubo_escape, material_tubo_escape);
     mesh_tubo_escape.rotation.x = Math.PI / 2;
-    mesh_tubo_escape.position.set(-0.5,0.2,-2.15); //0.5,0.6,2.2
+    mesh_tubo_escape.position.set(-0.5,0.2,-2.15);
     this.kartChassis.add(mesh_tubo_escape);
 
 
+    // Assemble kart group and add helper axes for debugging
     this.kart.add(this.kartChassis);
-    this.kart.position.set(0, 0.6,-3)
-    this.kart.add(new THREE.AxesHelper(3));
+    this.kart.position.set(0, 0.6,-3);
+    //this.kart.add(new THREE.AxesHelper(3));
 
+    // Wheels and axes setup
     this.wheelAxisGroup = new THREE.Group();
     const wheelGeometry = new THREE.CylinderGeometry(0.5, 0.5, 0.3, 8);
     const wheelMaterial = new THREE.MeshStandardMaterial({ color: 0x333333 });
@@ -186,6 +205,7 @@ export class Kart {
     this.wheelAxisGroup.add(this.wheelsFrontAxis);
     this.wheelAxisGroup.add(this.wheelsBackAxis);
 
+    // Create wheel meshes and attach them to the corresponding axes
     wheelPositionsFront.forEach(pos => {
       const wheel = new THREE.Mesh(wheelGeometry, wheelMaterial);
       wheel.rotation.z = Math.PI / 2;
@@ -202,48 +222,82 @@ export class Kart {
 
     this.kart.add(this.wheelAxisGroup);
     scene.add(this.kart);
+
+    // Register kart for collision checks
     collisionObserver.addColisionObject(this);
   };
 
+  /** getBody - return the root Group representing the kart */
   public getBody(): THREE.Group {
     return this.kart;
   };
 
+  /** getWheelsFrontAxis - return front wheels group for visual updates */
   public getWheelsFrontAxis(): THREE.Group {
     return this.wheelsFrontAxis;
   };
 
+  /** getWheelsBackAxis - return rear wheels group for visual updates */
   public getWheelsBackAxis(): THREE.Group {
     return this.wheelsBackAxis;
   };
 
+  /** getWheelAxisGroup - return the whole wheel axis assembly */
   public getWheelAxisGroup(): THREE.Group {
     return this.wheelAxisGroup;
   };
 
+  /** getPowerUpsList - return the group containing active power-up visuals */
   public getPowerUpsList(): THREE.Group {
     return this.powerUpsList;
   };
 
+  /** setX 
+   * - move kart's X position in world space 
+   * @param x: new X position in world coordinates.
+   * */
   public setX(x: number): void {
     this.kart.position.x = x;
   }
 
+  /** setZ 
+   * - move kart's Z position in world space 
+   * @param z: new Z position in world coordinates.
+   * */
   public setZ(z: number): void {
     this.kart.position.z = z;
   }
   
+  /** getBoostActive - query whether boost is active */
   public getBoostActive(): boolean {
     return this.boostActive;
   }
 
+  /** getBoostFalloff - query whether boost is in falloff phase */
   public getBoostFalloff(): boolean {
     return this.boostFalloff;
   }
+  /** setRotation 
+   * - set the kart's orientation in world space 
+   * @param x rotation around X axis (radians)
+   * @param y rotation around Y axis (radians)
+   * @param z rotation around Z axis (radians)
+   * */
   public setRotation(x: number, y: number, z: number): void {
     this.kart.rotation.set(x, y, z);
   }
+
+  /**
+   * setPowerUps - create and attach power-up instances depending on the chosen count.
+   * - If there is already an active power-up set, the call is ignored.
+   * - For projectile power-ups (shuriken, bomb) instances are created, stored in proyectilesList
+   *   and their meshes are added to powerUpsList for visual display.
+   * - For consumable power-ups (coffee) meshes are added to the visual list and no projectile
+   *   instances are stored.
+   *  @param count: number indicating which power-up(s) to create.
+   */
   public setPowerUps(count: number): void {
+    if (this.powerUpsList.children.length === 0 && this.isActivatePowerUps) this.isActivatePowerUps = false;
     if (!this.isActivatePowerUps) {
       this.powerUps = count;
       this.isActivatePowerUps = true;
@@ -252,17 +306,17 @@ export class Kart {
       console.log(this.powerUpsList.position);
       switch (this.powerUps) {
         case 0:
-          // Activar un solo shuriken
+          // Activate a single shuriken
           const shuriken1_case0 = new Shuriken();
           shuriken1_case0.parent = this;
           shuriken1_case0.setPosition(0,0,-3);
 
-          // Guardar la instancia en el array de proyectiles y añadir su mesh a la lista de power ups
+          // Store instance and add its mesh to the power-up group
           this.proyectilesList.push(shuriken1_case0);
           this.powerUpsList.add(shuriken1_case0.getBody());
           break;
         case 1:
-          // Activar dos shurikens
+          // Activate two shurikens
           const shuriken1_case1 = new Shuriken();
           const shuriken2_case1 = new Shuriken();
 
@@ -272,13 +326,13 @@ export class Kart {
           shuriken1_case1.setX(-3);
           shuriken2_case1.setX(3);
 
-          // Guardar instancias y añadir meshes
+          // Store instances and add meshes
           this.proyectilesList.push(shuriken1_case1, shuriken2_case1);
           this.powerUpsList.add(shuriken1_case1.getBody(), shuriken2_case1.getBody());
 
           break;
         case 2:
-          // Activar 3 shurikens
+          // Activate three shurikens
           const shuriken1_case2 = new Shuriken();
           const shuriken2_case2 = new Shuriken();
           const shuriken3_case2 = new Shuriken();
@@ -291,12 +345,12 @@ export class Kart {
           shuriken2_case2.setPosition(3,0,1);
           shuriken3_case2.setPosition(-3,0,1);
 
-          // Guardar instancias y añadir meshes
+          // Store instances and add meshes
           this.proyectilesList.push(shuriken1_case2, shuriken2_case2, shuriken3_case2);
           this.powerUpsList.add(shuriken1_case2.getBody(), shuriken2_case2.getBody(), shuriken3_case2.getBody());
           break;
         case 3:
-          // Activar bomba
+          // Activate bomb
           console.log("Bomba activada");
           const bomb = new Bomb();
           bomb.setPosition(0,0.5,-4);
@@ -304,14 +358,14 @@ export class Kart {
           this.powerUpsList.add(bomb.getBody());
           break;
         case 4:
-          // Activar cafe
+          // Activate coffee (speed consumable)
           console.log("Cafe activado");
           const coffee1_case4 = new Coffee();
           coffee1_case4.setPosition(0, 0, -3);
           this.powerUpsList.add(coffee1_case4.getBody());
           break;
         case 5:
-          // Activar dos cafe
+          // Activate two coffees
           console.log("Dos cafes activados");
           const coffee1_case5 = new Coffee();
           const coffee2_case5 = new Coffee();
@@ -322,7 +376,7 @@ export class Kart {
           this.powerUpsList.add(coffee1_case5.getBody(), coffee2_case5.getBody());
           break;
         case 6:
-          // Activar tres cafe
+          // Activate three coffees
           console.log("Tres cafes activados");
           const coffee1_case6 = new Coffee();
           const coffee2_case6 = new Coffee();
@@ -342,6 +396,16 @@ export class Kart {
     }
   }
 
+  /**
+   * launchPowerUps - triggered to launch / consume the stored power-ups.
+   * - For projectile types (shuriken, bomb): take last stored projectile, add it back to the scene,
+   *   initialize its velocity and mark it as launched. Move instance from proyectilesList to proyectilLaunched.
+   * - For consumable types (coffee): remove visual and activate boost effect.
+   *
+   * Important:
+   *  - Using pop() on powerUpsList.children removes the mesh from the visual list.
+   *  - The code relies on matching the popped mesh to the corresponding instance in proyectilesList.
+   */
   public launchPowerUps(): void {
     if (this.isActivatePowerUps && this.powerUpsList.children.length > 0) {
       console.log("Lanzando power ups");
@@ -350,7 +414,7 @@ export class Kart {
         case 1:
         case 2:
         case 3:
-          // Obtener el último proyectil (instancia) y su mesh
+          // Get the last power-up mesh (visual) and find its instance index
           const powerUpMesh = this.powerUpsList.children.pop();
           const index = this.proyectilesList.findIndex((proy) => proy.getBody() === powerUpMesh);
 
@@ -360,13 +424,13 @@ export class Kart {
             proyectil.setVelocity(this.kart);
           }
           proyectil.setLaunched(true);
-          // Si es una bomba, le damos una velocidad inicial
+          // If it's a bomb, give an initial velocity vector
           if (proyectil instanceof Bomb) {
             proyectil.setDirection(this.kart)
             proyectil.setVelocity(
               new THREE.Vector3(
-                Math.sin(this.kart.rotation.y) * 5, // hacia adelante
-                4,// ligeramente hacia arriba
+                Math.sin(this.kart.rotation.y) * 5, // forward
+                4, // slight upward component
                 Math.cos(this.kart.rotation.y) * 5
               )
             );
@@ -374,7 +438,7 @@ export class Kart {
             proyectil.setVelocity(this.kart);
           }
 
-          // Mover la instancia del proyectil lanzado al array de proyectiles lanzados
+          // Move instance from proyectilesList to proyectilLaunched
           this.proyectilLaunched.push(this.proyectilesList.pop()!);
 
           break;
@@ -387,40 +451,52 @@ export class Kart {
           break;
       }
 
-      if (this.powerUpsList.children.length === 0) {
-        this.isActivatePowerUps = false;
-        this.powerUps = -1;
-      }
       console.log(this.powerUpsList.children.length);
-    } else {
-      console.log("No tienes power ups para lanzar");
+    } 
+
+    // If visual list empty, reset power-up state
+    if (this.powerUpsList.children.length === 0 && this.isActivatePowerUps) {
+      this.isActivatePowerUps = false;
+      this.powerUps = -1;
+      console.log("No tienes power ups ");
     }
   }
 
+  /**
+   * removeProyectilFromList - remove a projectile instance by index from the stored list.
+   * - Called by projectiles when they are destroyed and report their parent index.
+   */
   public removeProyectilFromList(index: number): void {
     this.proyectilesList.splice(index, 1);
     console.log("Proyectil removido de la lista");
   }
 
+  /**
+   * activateSpeedBoost - enable a temporary speed boost.
+   * @param now: current timestamp in ms (performance.now()).
+   * @param durationMs: how long the boost lasts.
+   *  
+   * Workflow:
+   *  - Set boostActive, update maxSpeed to boostedMaxSpeed and schedule boost end time.
+   *  - Ensure current speed is at least the new max so the boost feels immediate.
+   */
   public activateSpeedBoost(now: number, durationMs: number = 3000) {
     this.boostActive = true;
     this.boostFalloff = false;
 
-    this.maxSpeed = this.boostedMaxSpeed; // subimos el límite
+    this.maxSpeed = this.boostedMaxSpeed; // raise the speed cap
     this.boostEndTime = now + durationMs;
 
-    // opcional: si ibas más lento que el nuevo máximo,
-    // dale un empujón para que se sienta el turbo instantáneo
+    // Optional: if current speed is below the new cap, lift it to the cap
     if (this.speed < this.maxSpeed) {
       this.speed = this.maxSpeed;
     }
   }
-  
-  public getCrashed(): boolean {
-    return this.crashed;
-  }
 
-
+  /**
+   * clearPowerUps - remove all power-up visuals and clear stored projectile instances.
+   * - Also reset activation flags.
+   */
   public clearPowerUps(): void {
     this.powerUpsList.children.forEach((powerUp) => {
       this.powerUpsList.remove(powerUp);
@@ -431,38 +507,46 @@ export class Kart {
     console.log("Power ups limpiados");
   }
 
-  public setCrashed(staticObject: StaticObjects): void {
-    this.reboundVelocity = reflectDirection(this, staticObject);
 
-    // asigna velocidad inicial de rebote
-    this.reboundVelocity.copy(this.reboundVelocity.multiplyScalar(this.reboundStrength));
-    this.crashed = true;
-  }
+  /**
+   * updateBoost - manage boost lifecycle and gradual falloff.
+   * @param nowMs: current timestamp in milliseconds.
+   * - Should be called each frame with current timestamp (ms).
+   * - When boost time ends, begin falloff and gradually reduce maxSpeed back to original.
+   * - Ensure current speed never exceeds the current cap.
+   */
   public updateBoost(nowMs: number) {
-    // 1. Chequear si el boost debería terminar
+    // Check if boost should end
     if (this.boostActive && nowMs >= this.boostEndTime) {
       this.boostActive = false;
       this.boostFalloff = true;
     }
 
-    // 2. Fase de caída: reducir maxSpeed gradualmente
+    // Falloff phase: lower maxSpeed gradually
     if (this.boostFalloff) {
-      // bajar el límite max poco a poco
+      // decrease maxSpeed slowly
       this.maxSpeed -= this.falloffRate;
 
-      // asegurar que no bajemos por debajo de la normal
+      // clamp back to original max and stop falloff when reached
       if (this.maxSpeed <= this.originalMaxSpeed) {
         this.maxSpeed = this.originalMaxSpeed;
         this.boostFalloff = false;
       }
 
-      // IMPORTANTE: ajustar speed actual si quedó por encima
+      // IMPORTANT: ensure current speed does not exceed new cap
       if (this.speed > this.maxSpeed) {
         this.speed = this.maxSpeed;
       }
     }
   }
 
+  /**
+   * animatePowerUps - per-frame visual updates for attached power-up visuals and launched projectiles.
+   * - Rotates/animates power-up container to match cart orientation or spin depending on type.
+   * - Advances launched projectiles (bombs are updated with physics; shurikens moved forward).
+   *
+   * @param deltaTime: frame time in seconds (optional, default ~1/60).
+   */
   public animatePowerUps(deltaTime: number = 0.016): void {
     if (this.isActivatePowerUps) {
       this.powerUpsList.children.forEach((powerUp) => {
@@ -470,6 +554,7 @@ export class Kart {
       });
     }
 
+    // Adjust how the power-ups container is oriented depending on active power-up type
     switch (this.powerUps) {
       case 0:
       case 3:
@@ -486,12 +571,14 @@ export class Kart {
           break;
     }
 
+    // Keep the visual holder at the kart position
     this.powerUpsList.position.copy(this.kart.position);
     
+    // Advance launched projectiles: call update for bombs (physics) and simple movement for others
     for (let i = 0; i < this.proyectilLaunched.length; i++) {
       const proyectil = this.proyectilLaunched[i];
       if (proyectil instanceof Bomb) {
-            proyectil.update(deltaTime); // gravedad, explosión, etc.
+            proyectil.update(deltaTime); // gravity, explosion, etc.
       } else {
         proyectil.moveForward(0.9);
         proyectil.rotateY(0.1);
@@ -500,34 +587,6 @@ export class Kart {
     
   }
 
-
-
-  public animateCrash(): void {
-    // Lógica de animación para el choque
-    if (this.crashed) {
-      if (this.reboundVelocity.lengthSq() > 0.0001) {
-        // Mover el kart según la velocidad de rebote
-
-        // 1. obtener posición global actual
-        const worldPos = this.kart.getWorldPosition(new THREE.Vector3());
-
-        // 2. aplicar la velocidad de rebote este frame
-        worldPos.add(this.reboundVelocity);
-
-        // 3. volver a local del padre
-        const parent = this.kart.parent!;
-        this.kart.position.copy(parent.worldToLocal(worldPos.clone()));
-
-        // 4. frenar la velocidad para que el rebote muera suavemente
-        
-        this.reboundVelocity.multiplyScalar(this.damping);
-        this.kart.rotation.y += Math.PI / 180 * 2; // rotar un poco al rebotar
-      } else if (this.reboundVelocity.lengthSq() < 0.0001) {
-        this.crashed = false;
-        //this.reboundVelocity.set(0, 0, 0);
-      }
-    }
-  }
 
 }
 

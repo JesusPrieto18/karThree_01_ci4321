@@ -2,127 +2,145 @@ import * as THREE from 'three';
 import { solidWithWire } from './utils/utils';
 import { scene } from './scene';
 
+/**
+ * USB - builds a decorative 3D sign composed of simple box primitives.
+ *
+ * Responsibilities / workflow:
+ *  - Construct letter shapes (U, S, B) from BoxGeometry parts.
+ *  - Compose parts into a root THREE.Group (usbMesh).
+ *  - Add the group to the global scene so it is rendered.
+ *  - Expose helpers to set position, get position and run a simple animation.
+ *
+ * Implementation notes:
+ *  - The visual is built from many small meshes to approximate letters.
+ *  - solidWithWire helper is used to create a mesh with a solid material and optional wireframe.
+ *  - The group is kept as a single root so it can be moved or removed easily.
+ */
 export class USB {
+    // Root group that contains all parts of the USB sign
     private usbMesh: THREE.Group = new THREE.Group();
-    constructor() {
-        const geometry = new THREE.BoxGeometry(2, 10, 1);
-        const material_color = 0x0000ff;
 
-        // Letra U
-        let rightU = solidWithWire(geometry, material_color, false);
-        rightU.position.y = 15;
-        rightU.position.x = -8;
+    /**
+     * Constructor - builds the letter components and adds them to the scene.
+     * Steps:
+     *  1. Create geometry and materials for each component.
+     *  2. Position each part relative to the root group.
+     *  3. Add all parts to the root group and then add the group to the scene.
+     */
+    constructor() {
+        // Base color for the letters
+        const materialColor = 0x0000ff;
+
+        // --- Letter U construction (composed from two vertical bars and a base) ---
+        const verticalBarGeo = new THREE.BoxGeometry(2, 10, 1);
+        const rightU = solidWithWire(verticalBarGeo, materialColor, false);
+        rightU.position.set(-8, 15, 0);
         this.usbMesh.add(rightU);
 
-        let leftU = solidWithWire(geometry, material_color, false);
-        leftU.position.y = 15;
-        leftU.position.x = -14;
+        const leftU = solidWithWire(verticalBarGeo, materialColor, false);
+        leftU.position.set(-14, 15, 0);
         this.usbMesh.add(leftU);
 
-        const geometry1 = new THREE.BoxGeometry(6, 2, 1);
-        let baseU = solidWithWire(geometry1, material_color, false);
-        baseU.position.y = 10;
-        baseU.position.x = -11;
+        const baseUGeo = new THREE.BoxGeometry(6, 2, 1);
+        const baseU = solidWithWire(baseUGeo, materialColor, false);
+        baseU.position.set(-11, 10, 0);
         this.usbMesh.add(baseU);
 
-        // Letra S
-        const geometry2 = new THREE.BoxGeometry(9, 2, 1);
-        let topS = solidWithWire(geometry2, material_color, false);
-        topS.position.y = 19;
-        topS.position.x = 0;
+        // --- Letter S construction (top, middle, bottom bars + side bars) ---
+        const longBarGeo = new THREE.BoxGeometry(9, 2, 1);
+        const topS = solidWithWire(longBarGeo, materialColor, false);
+        topS.position.set(0, 19, 0);
         this.usbMesh.add(topS);
 
-        let middleS = solidWithWire(geometry2, material_color, false);
-        middleS.position.y = 14.5;
-        middleS.position.x = 0;
+        const middleS = solidWithWire(longBarGeo, materialColor, false);
+        middleS.position.set(0, 14.5, 0);
         this.usbMesh.add(middleS);
 
-        let bottomS = solidWithWire(geometry2, material_color, false);
-        bottomS.position.y = 10;
-        bottomS.position.x = 0;
+        const bottomS = solidWithWire(longBarGeo, materialColor, false);
+        bottomS.position.set(0, 10, 0);
         this.usbMesh.add(bottomS);
 
-        const geometry3 = new THREE.BoxGeometry(2, 5, 1);
-        let leftS = solidWithWire(geometry3, material_color, false);
-        leftS.position.y = 16.75;
-        leftS.position.x = -4.5;
+        const smallBarGeo = new THREE.BoxGeometry(2, 5, 1);
+        const leftS = solidWithWire(smallBarGeo, materialColor, false);
+        leftS.position.set(-4.5, 16.75, 0);
         this.usbMesh.add(leftS);
 
-        let rightS = solidWithWire(geometry3, material_color, false);
-        rightS.position.y = 12.25;
-        rightS.position.x = 4.5;
+        const rightS = solidWithWire(smallBarGeo, materialColor, false);
+        rightS.position.set(4.5, 12.25, 0);
         this.usbMesh.add(rightS);
 
-        // Letra B
-
-        const geometry4 = new THREE.BoxGeometry(2, 10, 1);
-        let leftB = solidWithWire(geometry4, material_color, false);
-        leftB.position.y = 14.5;
-        leftB.position.x = 8;
+        // --- Letter B construction (vertical bar + three horizontal bars + inner small pieces) ---
+        const verticalBGeo = new THREE.BoxGeometry(2, 10, 1);
+        const leftB = solidWithWire(verticalBGeo, materialColor, false);
+        leftB.position.set(8, 14.5, 0);
         this.usbMesh.add(leftB);
-        
-        const geometry5 = new THREE.BoxGeometry(6, 2, 1);
-        let topB = solidWithWire(geometry5, material_color, false);
-        topB.position.y = 19;
-        topB.position.x = 11;
+
+        const horizontalBGeo = new THREE.BoxGeometry(6, 2, 1);
+        const topB = solidWithWire(horizontalBGeo, materialColor, false);
+        topB.position.set(11, 19, 0);
         this.usbMesh.add(topB);
 
-        let middleB = solidWithWire(geometry5, material_color, false);
-        middleB.position.y = 14.5;
-        middleB.position.x = 11;
+        const middleB = solidWithWire(horizontalBGeo, materialColor, false);
+        middleB.position.set(11, 14.5, 0);
         this.usbMesh.add(middleB);
 
-        let bottomB = solidWithWire(geometry5, material_color, false);
-        bottomB.position.y = 10;
-        bottomB.position.x = 11;
+        const bottomB = solidWithWire(horizontalBGeo, materialColor, false);
+        bottomB.position.set(11, 10, 0);
         this.usbMesh.add(bottomB);
 
-        const geometry6 = new THREE.BoxGeometry(1, 2.8, 1);
-        let innerRightBTop= solidWithWire(geometry6, material_color, false);
-        innerRightBTop.position.y = 18;
-        innerRightBTop.position.x = 14;
+        const innerSmallGeo = new THREE.BoxGeometry(1, 2.8, 1);
+        const innerRightBTop = solidWithWire(innerSmallGeo, materialColor, false);
+        innerRightBTop.position.set(14, 18, 0);
         this.usbMesh.add(innerRightBTop);
 
-        let innerRightBTopMiddle = solidWithWire(geometry6, material_color, false);
-        innerRightBTopMiddle.position.y = 17;
-        innerRightBTopMiddle.position.x = 15;
+        const innerRightBTopMiddle = solidWithWire(innerSmallGeo, materialColor, false);
+        innerRightBTopMiddle.position.set(15, 17, 0);
         this.usbMesh.add(innerRightBTopMiddle);
 
-        let innerRightBTopBottom = solidWithWire(geometry6, material_color, false);
-        innerRightBTopBottom.position.y = 16;
-        innerRightBTopBottom.position.x = 14;
+        const innerRightBTopBottom = solidWithWire(innerSmallGeo, materialColor, false);
+        innerRightBTopBottom.position.set(14, 16, 0);
         this.usbMesh.add(innerRightBTopBottom);
 
-        let innerLeftBTop = solidWithWire(geometry6, material_color, false);
-        innerLeftBTop.position.y = 12.25;
-        innerLeftBTop.position.x = 14;
+        const innerLeftBTop = solidWithWire(innerSmallGeo, materialColor, false);
+        innerLeftBTop.position.set(14, 12.25, 0);
         this.usbMesh.add(innerLeftBTop);
 
-        let innerLeftBBottomMiddle = solidWithWire(geometry6, material_color, false);
-        innerLeftBBottomMiddle.position.y = 11.5;
-        innerLeftBBottomMiddle.position.x = 15;
+        const innerLeftBBottomMiddle = solidWithWire(innerSmallGeo, materialColor, false);
+        innerLeftBBottomMiddle.position.set(15, 11.5, 0);
         this.usbMesh.add(innerLeftBBottomMiddle);
 
-        let innerLeftBBottom = solidWithWire(geometry6, material_color, false);
-        innerLeftBBottom.position.y = 11;
-        innerLeftBBottom.position.x = 14;
+        const innerLeftBBottom = solidWithWire(innerSmallGeo, materialColor, false);
+        innerLeftBBottom.position.set(14, 11, 0);
         this.usbMesh.add(innerLeftBBottom);
 
-
-
+        // Add the assembled group to the global scene so it will be rendered
         scene.add(this.usbMesh);
-
-        
     }
 
+    /**
+     * setPosition - sets the world position of the USB sign root group.
+     * @param x world X coordinate
+     * @param y world Y coordinate
+     * @param z world Z coordinate
+     */
     public setPosition(x: number, y: number, z: number): void {
         this.usbMesh.position.set(x, y, z);
     }
 
+    /**
+     * getPosition - returns the group's current position vector.
+     * Useful for alignment, collision checks or camera focusing.
+     */
     public getPosition(): THREE.Vector3 {
         return this.usbMesh.position;
     }
 
+    /**
+     * animate - simple per-frame visual update.
+     * - Adds a small vertical bobbing for a floating effect.
+     * - Applies a slow rotation around Y for subtle motion.
+     * Call this from the main animation loop if desired.
+     */
     public animate(): void {
       this.usbMesh.position.y = Math.sin(Date.now() * 0.002) * 0.5 + 0.55;
       this.usbMesh.rotation.y += 0.001;

@@ -6,41 +6,74 @@ import { USB } from "../usb";
 import { RaceTrack } from "../RaceTrackClass";
 
 
-// Initializacion
+/*
+ * Initialization module - factory helpers to create scene entities.
+ * Exports:
+ *  - kart: global Kart instance (created via createKart)
+ *  - listPowerUps: array of active PowerUp instances
+ *  - trafficCones: decorative/obstacle cones created by helpers
+ *  - decorators: miscellaneous decorative objects (USB, signs, etc.)
+ *
+ * The helper functions below place objects into the global scene by using
+ * their constructors and simple setters. They are intended for quick scene
+ * composition during development.
+ */
+
+// Global instances / collections created by helpers
 export let kart: Kart;
 export let listPowerUps: PowerUp[] = [];
-export let trafficCones: TrafficCone[] = []; // <-- nueva lista para conos
-export let decorators: any[] = []; // <-- nueva lista para decoradores
+export let trafficCones: TrafficCone[] = []; // list of traffic cones (obstacles/decorators)
+export let decorators: any[] = []; // generic list for decorative objects
 
+/**
+ * createKart - instantiate and position the player's kart.
+ * Typical usage: call once during scene setup.
+ */
 export function createKart(): void {
   kart = new Kart();
   kart.setZ(25);
   kart.setRotation(0, Math.PI, 0);
 }
 
+/**
+ * createPowerUp - create a single PowerUp and place it at a default location.
+ * The created instance is added to the listPowerUps array for later management.
+ */
 export function createPowerUp(): void {
   const pu = new PowerUp();
   pu.setPosition(0, 0, 10);
   listPowerUps.push(pu);
 }
 
+/**
+ * createTrafficCone - create a single traffic cone and place it at Z=5.
+ * The instance is stored in the trafficCones array for potential later use.
+ */
 export function createTrafficCone(): void {
   const tc = new TrafficCone();
   tc.setZ(5);
   trafficCones.push(tc);
-
 }
 
+/** createWall - convenience helper to create a single wall (defaults used). */
 export function createWall(): void {
   const walls = new Walls();
 }
 
+/**
+ * createFourWalls - create four walls forming a rectangular boundary.
+ * Parameters:
+ *  - wallLengthParam, wallHeightParam: size of each wall.
+ *  - inside: if true, walls are placed so their inner faces point inward.
+ *
+ * The helper creates four Walls and positions/rotates them to form a box.
+ */
 export function createFourWalls(wallLengthParam: number = 150, wallHeightParam: number = 10, inside: boolean = true): void {
 
-  const wall1 = new Walls(wallLengthParam, wallHeightParam); // Pared de arriba
-  const wall2 = new Walls(wallLengthParam, wallHeightParam); // Pared de abajo
-  const wall3 = new Walls(wallLengthParam, wallHeightParam); // Pared derecha
-  const wall4 = new Walls(wallLengthParam, wallHeightParam); // Pared izquierda
+  const wall1 = new Walls(wallLengthParam, wallHeightParam); // top wall
+  const wall2 = new Walls(wallLengthParam, wallHeightParam); // bottom wall
+  const wall3 = new Walls(wallLengthParam, wallHeightParam); // right wall
+  const wall4 = new Walls(wallLengthParam, wallHeightParam); // left wall
   if (inside) {
     wall1.setPosition(0,0, -wall1.getLength()/2);
     wall2.setPosition(0,0, wall2.getLength()/2);
@@ -60,27 +93,28 @@ export function createFourWalls(wallLengthParam: number = 150, wallHeightParam: 
 }
 
 /**
- * Crea `count` PowerUps en posiciones aleatorias no repetidas dentro de [25,125] en X y Z.
- * Ajusta la altura Y según necesites (aquí se usa 0.5).
+ * createMultiplePowerUpsRandom - create `count` PowerUps at unique random X,Z positions.
+ * - Positions are generated inside [min, max] (defaults in generateUniquePositions).
+ * - Y is set to 0.5 by default; adjust if necessary.
  */
 export function createMultiplePowerUpsRandom(count = 10): void {
   const positions = generateUniquePositions(count, -75, 75);
   for (const pos of positions) {
     const pu = new PowerUp();
-    pu.setPosition(pos.x, 0.5, pos.z); // ajustar Y si es necesario
+    pu.setPosition(pos.x, 0.5, pos.z); // adjust Y if needed
     listPowerUps.push(pu);
   }
 }
 
 /**
- * Genera `count` posiciones únicas aleatorias en el rango [min, max] para X y Z.
- * Devuelve un array de objetos { x, z }.
+ * generateUniquePositions - helper that returns `count` unique (x,z) positions
+ * in the integer range [min, max]. Throws if the requested count exceeds the grid.
  */
 function generateUniquePositions(count: number, min = 25, max = 125): { x: number; z: number }[] {
   const set = new Set<string>();
   const out: { x: number; z: number }[] = [];
   const range = max - min + 1;
-  if (count > range * range) throw new Error('Rango demasiado pequeño para posiciones únicas solicitadas');
+  if (count > range * range) throw new Error('Range too small for requested unique positions');
 
   while (out.length < count) {
     const x = Math.round(Math.random() * (max - min) + min);
@@ -95,10 +129,13 @@ function generateUniquePositions(count: number, min = 25, max = 125): { x: numbe
 }
 
 /**
- * Crea una línea de `count` conos empezando en (startX, startZ),
- * separados por `spacing`. `axis` puede ser 'x' o 'z' indicando la dirección de la línea.
- * Si `reverse` es true la línea se extiende en sentido negativo del eje.
- * Devuelve el array de TrafficCone creados.
+ * createConeLine - create a line of `count` TrafficCone instances.
+ * - startX, startZ: starting position for the first cone.
+ * - spacing: distance between cones.
+ * - axis: 'x' or 'z' determines line direction.
+ * - reverse: if true the line extends in the negative direction along the chosen axis.
+ *
+ * Created cones are pushed into trafficCones array.
  */
 export function createConeLine(
   count: number = 10,
@@ -131,10 +168,10 @@ export function createUSB(): void {
 }
 
 /**
- * Crea una serie de TrafficCone alineados formando un corazón.
- * count: número de conos (más = más preciso)
- * centerX, centerZ: centro del corazón en el plano XZ
- * scale: escala del dibujo (ajusta tamaño)
+ * createHeartCones - create `count` TrafficCone instances arranged in a heart shape.
+ * - centerX/centerZ: center of the heart on the XZ plane.
+ * - scale: scales the parametric heart curve to adjust size.
+ * - Cones are created with addColision = false so they are purely decorative.
  */
 export function createHeartCones(
   count: number = 60,
@@ -142,10 +179,10 @@ export function createHeartCones(
   centerZ: number = 0,
   scale: number = 0.6
 ): void {
-  // Parametrización clásica del corazón (plano 2D). t ∈ [0, 2π]
+  // Parametric heart curve (2D). t ∈ [0, 2π]
   for (let i = 0; i < count; i++) {
     const t = (i / count) * Math.PI * 2;
-    // ecuación paramétrica: x = 16 sin^3 t, y = 13 cos t - 5 cos 2t - 2 cos 3t - cos 4t
+    // parametric equations: x = 16 sin^3 t, y = 13 cos t - 5 cos 2t - 2 cos 3t - cos 4t
     const sx = Math.sin(t);
     const cx = Math.cos(t);
     const xRaw = 16 * Math.pow(sx, 3);
@@ -154,17 +191,17 @@ export function createHeartCones(
     const x = centerX + xRaw * scale;
     const z = centerZ + zRaw * scale;
 
-    const tc = new TrafficCone(false); // No colisión para decoración
+    const tc = new TrafficCone(false); // No collision for decoration
     tc.setPosition(x, 0, z);
     trafficCones.push(tc);
   }
 }
 
 /**
- * Crea un cuadrado de conos centrado en (centerX, centerZ).
- * countPerSide: conos por lado (mínimo 2, incluye esquinas sin duplicar).
- * sideLength: longitud del lado del cuadrado.
- * y: altura para colocar los conos (por ejemplo 0).
+ * createConeSquare - create a square frame of cones centered at (centerX, centerZ).
+ * - countPerSide: number of cones per side (minimum 2, corners included).
+ * - sideLength: length of each side of the square.
+ * - y: vertical position for cones (default 0).
  */
 export function createConeSquare(
   countPerSide: number = 8,
@@ -177,22 +214,22 @@ export function createConeSquare(
   const half = sideLength / 2;
   const spacing = sideLength / (n - 1);
 
-  // genera posiciones a lo largo de los 4 lados (sin duplicar esquinas)
+  // generate positions along the 4 sides (without duplicating corners)
   const positions: { x: number; z: number }[] = [];
 
-  // lado superior (izquierda -> derecha)
+  // top side (left -> right)
   for (let i = 0; i < n; i++) {
     positions.push({ x: centerX - half + i * spacing, z: centerZ - half });
   }
-  // lado derecho (arriba -> abajo) excluye esquina superior
+  // right side (top -> bottom) exclude top corner
   for (let i = 1; i < n; i++) {
     positions.push({ x: centerX + half, z: centerZ - half + i * spacing });
   }
-  // lado inferior (derecha -> izquierda) excluye esquina inferior derecha
+  // bottom side (right -> left) exclude bottom-right corner
   for (let i = 1; i < n; i++) {
     positions.push({ x: centerX + half - i * spacing, z: centerZ + half });
   }
-  // lado izquierdo (abajo -> arriba) excluye esquina inferior izquierda y superior izquierda
+  // left side (bottom -> top) exclude bottom-left and top-left corners
   for (let i = 1; i < n - 1; i++) {
     positions.push({ x: centerX - half, z: centerZ + half - i * spacing });
   }
@@ -205,6 +242,7 @@ export function createConeSquare(
   }
 }
 
+/** createRaceTrack - convenience helper to create a RaceTrack with default size. */
 export function createRaceTrack(){
   const track = new RaceTrack(150,150);
 }
