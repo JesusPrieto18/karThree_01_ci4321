@@ -2,10 +2,12 @@ import * as THREE from 'three';
 import { scene } from './scene';
 import { vertices, faces, colors } from './shurikenInfo';
 import { collisionObserver } from './utils/colliding';
-import { aabbIntersects, reflectDirection, resolvePenetrationKart, resolvePenetrationProyectil } from './utils/utils';
+import { aabbIntersects, reflectDirection, resolvePenetrationProyectil } from './utils/utils';
 import type { CollisionClassName } from './models/colisionClass';
 import { TrafficCone } from './trafficCone';
 import { Walls } from './walls';
+import { kart } from './utils/initializers';
+import type { Kart } from './kart';
 export class Shuriken {
   private mesh: THREE.Mesh;
   private name?: string;
@@ -13,7 +15,7 @@ export class Shuriken {
   private crashed: boolean = false;
   private launched: boolean = false;
   private bounces: number = 0;
-
+  public parent: Kart | undefined = undefined;
 
   constructor(name?: string) {
     this.name = name;
@@ -113,13 +115,17 @@ export class Shuriken {
     return this.launched;
   }
 
+  public getBounces(): number {
+    return this.bounces;
+  }
+  
   public isColliding(target: CollisionClassName): void {
     if (target instanceof TrafficCone) {
       if (aabbIntersects(this.mesh, target.getBody())) {
         console.log("COLISION CON TRAFFIC CONE DESDE SHURIKEN");
-        if (this.mesh.removeFromParent) {
-          this.mesh.removeFromParent();
-        } else if (this.mesh.parent) {
+        if (this.mesh.parent) {
+          let index = this.mesh.parent.children.indexOf(this.mesh);
+          this.parent?.removeProyectilFromList(index);
           this.mesh.parent.remove(this.mesh);
         }
         collisionObserver.addObjectToRemove(this);

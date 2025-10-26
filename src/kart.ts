@@ -35,7 +35,7 @@ export class Kart {
   private powerUpsList: THREE.Group = new THREE.Group();
   private proyectilesList: Proyectils[] = [];
   private proyectilLaunched: Proyectils[] = []
-  
+
   private crashed: boolean = false;
   private reboundVelocity: THREE.Vector3 = new THREE.Vector3();
   private damping: number = 10; // más bajo = rebote se corta rápido, más alto = desliza más
@@ -171,6 +171,7 @@ export class Kart {
         case 0:
           // Activar un solo shuriken
           const shuriken1_case0 = new Shuriken();
+          shuriken1_case0.parent = this;
           shuriken1_case0.setPosition(0,0,-3);
 
           // Guardar la instancia en el array de proyectiles y añadir su mesh a la lista de power ups
@@ -182,8 +183,10 @@ export class Kart {
           const shuriken1_case1 = new Shuriken();
           const shuriken2_case1 = new Shuriken();
 
-          shuriken1_case1.setX(-3);
+          shuriken1_case1.parent = this;
+          shuriken2_case1.parent = this;
 
+          shuriken1_case1.setX(-3);
           shuriken2_case1.setX(3);
 
           // Guardar instancias y añadir meshes
@@ -197,6 +200,10 @@ export class Kart {
           const shuriken2_case2 = new Shuriken();
           const shuriken3_case2 = new Shuriken();
           
+          shuriken1_case2.parent = this;
+          shuriken2_case2.parent = this;
+          shuriken3_case2.parent = this;
+
           shuriken1_case2.setZ(-4);
           shuriken2_case2.setPosition(3,0,1);
           shuriken3_case2.setPosition(-3,0,1);
@@ -259,13 +266,14 @@ export class Kart {
           // Obtener el último proyectil (instancia) y su mesh
           const shuriken = this.powerUpsList.children.pop();
           const index = this.proyectilesList.findIndex((proy) => proy.getBody() === shuriken);
-          
+
           this.proyectilesList[index].setVelocity(this.kart);
           this.proyectilesList[index].addScene();
           this.proyectilesList[index].setLaunched(true);
 
           // Mover la instancia del proyectil lanzado al array de proyectiles lanzados
           this.proyectilLaunched.push(this.proyectilesList.pop()!);
+
           break;
         case 4:
         case 5:
@@ -286,6 +294,11 @@ export class Kart {
     }
   }
 
+  public removeProyectilFromList(index: number): void {
+    this.proyectilesList.splice(index, 1);
+    console.log("Proyectil removido de la lista");
+  }
+
   public activateSpeedBoost(now: number, durationMs: number = 3000) {
     this.boostActive = true;
     this.boostFalloff = false;
@@ -304,7 +317,7 @@ export class Kart {
     return this.crashed;
   }
 
-  
+
   public clearPowerUps(): void {
     this.powerUpsList.children.forEach((powerUp) => {
       this.powerUpsList.remove(powerUp);
@@ -314,7 +327,7 @@ export class Kart {
     this.powerUps = -1;
     console.log("Power ups limpiados");
   }
-  
+
   public setCrashed(staticObject: StaticObjects): void {
     this.reboundVelocity = reflectDirection(this, staticObject);
 
@@ -371,13 +384,14 @@ export class Kart {
     }
 
     this.powerUpsList.position.copy(this.kart.position);
-    
+    console.log("Cantidad de proyectiles lanzados: " + this.proyectilLaunched.length);
+
     for (let i = 0; i < this.proyectilLaunched.length; i++) {
       const proyectil = this.proyectilLaunched[i];
       proyectil.moveForward(0.9);
       proyectil.rotateY(0.1);
-    };
-    
+
+    }
   }
 
   public animateCrash(): void {
