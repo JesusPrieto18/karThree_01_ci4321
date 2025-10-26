@@ -2,9 +2,9 @@ import { PowerUp } from "../powerUps";
 import { Kart } from "../kart";
 import { TrafficCone } from "../trafficCone";
 import { Walls } from "../walls";
-import { collisionObserver } from "./colliding";
 import { USB } from "../usb";
-import { Coffee } from "../coffee";
+import { RaceTrack } from "../RaceTrackClass";
+
 
 // Initializacion
 export let kart: Kart;
@@ -205,7 +205,6 @@ export function createConeSquare(
   }
 }
 
-export function createCoffee() {
-  const coffee = new Coffee();
-  coffee.setPosition(0, 0, 0);
+export function createRaceTrack(){
+  const track = new RaceTrack(150,150);
 }

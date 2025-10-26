@@ -5,6 +5,7 @@ import { Shuriken } from './shuriken';
 import type {Proyectils, StaticObjects } from './models/colisionClass';
 import { collisionObserver } from './utils/colliding';
 import { Coffee } from './coffee';
+import { Bomb } from './bomb';
 
 export class Kart {
   private kart = new THREE.Group();
@@ -126,7 +127,6 @@ export class Kart {
     this.kart.add(this.wheelAxisGroup);
     scene.add(this.kart);
     collisionObserver.addColisionObject(this);
-    //scene.add(this.proyectilesList);
   };
 
   public getBody(): THREE.Group {
@@ -222,6 +222,10 @@ export class Kart {
         case 3:
           // Activar bomba
           console.log("Bomba activada");
+          const bomb = new Bomb();
+          bomb.setPosition(0,0.5,-4);
+          this.proyectilesList.push(bomb);
+          this.powerUpsList.add(bomb.getBody());
           break;
         case 4:
           // Activar cafe
@@ -271,12 +275,28 @@ export class Kart {
         case 2:
         case 3:
           // Obtener el último proyectil (instancia) y su mesh
-          const shuriken = this.powerUpsList.children.pop();
-          const index = this.proyectilesList.findIndex((proy) => proy.getBody() === shuriken);
+          const powerUpMesh = this.powerUpsList.children.pop();
+          const index = this.proyectilesList.findIndex((proy) => proy.getBody() === powerUpMesh);
 
-          this.proyectilesList[index].setVelocity(this.kart);
-          this.proyectilesList[index].addScene();
-          this.proyectilesList[index].setLaunched(true);
+          const proyectil = this.proyectilesList[index];
+          proyectil.addScene();
+          if(proyectil instanceof Shuriken){
+            proyectil.setVelocity(this.kart);
+          }
+          proyectil.setLaunched(true);
+          // Si es una bomba, le damos una velocidad inicial
+          if (proyectil instanceof Bomb) {
+            proyectil.setDirection(this.kart)
+            proyectil.setVelocity(
+              new THREE.Vector3(
+                Math.sin(this.kart.rotation.y) * 5, // hacia adelante
+                3,// ligeramente hacia arriba
+                Math.cos(this.kart.rotation.y) * 5
+              )
+            );
+          } else {
+            proyectil.setVelocity(this.kart);
+          }
 
           // Mover la instancia del proyectil lanzado al array de proyectiles lanzados
           this.proyectilLaunched.push(this.proyectilesList.pop()!);
@@ -319,7 +339,7 @@ export class Kart {
       this.speed = this.maxSpeed;
     }
   }
-
+  
   public getCrashed(): boolean {
     return this.crashed;
   }
@@ -342,7 +362,6 @@ export class Kart {
     this.reboundVelocity.copy(this.reboundVelocity.multiplyScalar(this.reboundStrength));
     this.crashed = true;
   }
-
   public updateBoost(nowMs: number) {
     // 1. Chequear si el boost debería terminar
     if (this.boostActive && nowMs >= this.boostEndTime) {
@@ -368,7 +387,7 @@ export class Kart {
     }
   }
 
-  public animatePowerUps(): void {
+  public animatePowerUps(deltaTime: number = 0.016): void {
     if (this.isActivatePowerUps) {
       this.powerUpsList.children.forEach((powerUp) => {
         powerUp.rotation.y -= 0.01;
@@ -377,6 +396,7 @@ export class Kart {
 
     switch (this.powerUps) {
       case 0:
+      case 3:
       case 4:
         this.powerUpsList.rotation.copy(this.kart.rotation);
         break;
@@ -387,19 +407,24 @@ export class Kart {
         this.powerUpsList.rotation.y -= 0.01;
         break;
       default:
-        break;
+          break;
     }
 
     this.powerUpsList.position.copy(this.kart.position);
-    console.log("Cantidad de proyectiles lanzados: " + this.proyectilLaunched.length);
-
+    
     for (let i = 0; i < this.proyectilLaunched.length; i++) {
       const proyectil = this.proyectilLaunched[i];
-      proyectil.moveForward(0.9);
-      proyectil.rotateY(0.1);
-
-    }
+      if (proyectil instanceof Bomb) {
+            proyectil.update(deltaTime); // gravedad, explosión, etc.
+      } else {
+        proyectil.moveForward(0.9);
+        proyectil.rotateY(0.1);
+      }
+    };
+    
   }
+
+
 
   public animateCrash(): void {
     // Lógica de animación para el choque
@@ -427,5 +452,6 @@ export class Kart {
       }
     }
   }
+
 }
 

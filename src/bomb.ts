@@ -8,9 +8,10 @@ import { Walls } from './walls';
 
 export class Bomb {
   private mesh: THREE.Mesh;
+  private fuse: THREE.Mesh;
   private name?: string;
 
-  private direction: THREE.Vector3 = new THREE.Vector3(0, 0, -1);
+  private direction: THREE.Vector3 = new THREE.Vector3(0, 1, 0);
   private velocity: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
   private gravity: number = 9.8; // gravedad simulada
   private timer: number = 3; // segundos antes de explotar
@@ -27,6 +28,14 @@ export class Bomb {
 
     if (this.name) this.mesh.name = this.name;
 
+    // --- Mecha (fuse) ---
+    const fuseGeometry = new THREE.CylinderGeometry(0.03, 0.03, 0.25, 8);
+    const fuseMaterial = new THREE.MeshStandardMaterial({ color: 0xffaa00, emissive: 0xff6600, emissiveIntensity: 1 });
+    this.fuse = new THREE.Mesh(fuseGeometry, fuseMaterial);
+    this.fuse.position.set(0, 0.6, 0); // encima de la bomba
+    this.mesh.add(this.fuse);
+    this.mesh.add(new THREE.AxesHelper(3));
+    
     scene.add(this.mesh);
     collisionObserver.addColisionObject(this);
   }
@@ -52,20 +61,48 @@ export class Bomb {
   }
 
   /** Define la dirección en base a un objeto (ej: el kart o jugador) */
-  public setDirection(object: THREE.Object3D): void {
-    const dir = new THREE.Vector3(0, 0, -1);
-    object.getWorldDirection(dir);
+public setDirection(object: THREE.Object3D): void {
+  const dir = new THREE.Vector3(0, 1, 2);
+  object.getWorldDirection(dir);
 
-    const pos = new THREE.Vector3();
-    object.getWorldPosition(pos);
+  const pos = new THREE.Vector3();
+  object.getWorldPosition(pos);
 
-    this.mesh.position.copy(pos);
-    this.direction.copy(dir);
-  }
+  // 👉 Offset hacia adelante (ajusta el valor según el tamaño del kart)
+  const offsetDistance = 2; // 1.2 metros o unidades hacia adelante
+  const offset = dir.clone().multiplyScalar(offsetDistance);
+
+  // Nueva posición: frente del kart
+  const startPos = pos.clone().add(offset);
+  this.mesh.position.copy(startPos);
+
+  this.direction.copy(dir);
+  console.log('getWorldDirection:', dir);
+}
+
+
+  public moveForward(distance: number): void {
+  this.mesh.position.addScaledVector(this.direction, distance);
+}
+
+public rotateY(angleRad: number): void {
+  this.mesh.rotation.y += angleRad;
+}
+
 
   /** Asigna una velocidad inicial (por ejemplo, al lanzarla) */
   public setVelocity(initialVelocity: THREE.Vector3): void {
     this.velocity.copy(initialVelocity);
+  }
+
+    /** Animación de la mecha */
+  private updateFuse(deltaTime: number): void {
+    const fuseMat = this.fuse.material as THREE.MeshStandardMaterial;
+    // Cambiar el color hacia rojo con el tiempo
+    const t = Math.max(0, this.timer / 3); // normaliza 1 → 0
+    fuseMat.color.setHSL(0.1 + (1 - t) * 0.1, 1, 0.5); // de naranja a rojo
+    fuseMat.emissiveIntensity = 1 + (1 - t) * 4; // brilla más al final
+    this.fuse.scale.y = t * 1; // se va acortando
   }
 
   /** Actualiza posición, gravedad y temporizador */
@@ -77,7 +114,8 @@ export class Bomb {
 
     // Mover la bomba
     this.mesh.position.addScaledVector(this.velocity, deltaTime);
-
+    //Mecha
+    this.updateFuse(deltaTime);
     // Contador regresivo
     this.timer -= deltaTime;
     if (this.timer <= 0) {
@@ -112,15 +150,20 @@ export class Bomb {
   public isColliding(target: CollisionClassName): void {
     if (this.exploded) return;
 
-    if (target instanceof TrafficCone && aabbIntersects(this.mesh, target.getBody())) {
-      console.log('💣 Colisión con TrafficCone');
-      this.explode();
+    if (target instanceof TrafficCone && this.getLaunched()){ 
+      if(aabbIntersects(this.mesh, target.getBody())){
+        console.log('💣 Colisión con TrafficCone');
+        this.explode();
+      }
     }
+    
+    else if (target instanceof Walls && this.getLaunched() ) {
 
-    if (target instanceof Walls && aabbIntersects(this.mesh, target.getBody())) {
-      console.log('Colisión con pared');
-      this.explode();
-    }
+      if( aabbIntersects(this.mesh, target.getBody()) ){
+        console.log('Colisión con pared');
+        this.explode();
+      };
+    };
   }
 
   /** Métodos auxiliares */
