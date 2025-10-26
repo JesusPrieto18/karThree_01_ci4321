@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { aabbIntersects, solidWithWire, resolvePenetrationKart, resolvePenetrationObstacles } from './utils/utils';
+import { aabbIntersects, solidWithWire, resolvePenetrationObstacles } from './utils/utils';
 import { scene } from './scene';
 import type { CollisionClassName } from './models/colisionClass';
 import { Shuriken } from './shuriken';

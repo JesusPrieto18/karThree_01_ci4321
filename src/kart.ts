@@ -46,9 +46,12 @@ export class Kart {
     const height = 1;
     const length = 2;
     const width = 4.5;
+
+    // Chassis
     const body = new THREE.BoxGeometry(length, height, width);
     body.translate(0, height / 3, 0);
     const material_color = 0xFFE900;
+    const material_color_dark = 0x000000;
     this.kartChassis = solidWithWire(body, material_color, false);
     this.kartChassis.name = "kartChassis";
 
@@ -67,6 +70,50 @@ export class Kart {
     mesh_tope.rotateX(Math.PI/16);
     this.kartChassis.add(mesh_tope);
 
+    let tope_left = new THREE.BoxGeometry(0.2,0.2,1);
+    let material_tope_left = new THREE.MeshStandardMaterial({ color: material_color_dark });
+    let mesh_tope_left = new THREE.Mesh(tope_left, material_tope_left);
+    mesh_tope_left.position.set(-0.3,0.8001,0.8);
+    mesh_tope_left.rotateX(Math.PI/16);
+    this.kartChassis.add(mesh_tope_left);
+
+    let tope_right = new THREE.BoxGeometry(0.2,0.2,1);
+    let material_tope_right = new THREE.MeshStandardMaterial({ color: material_color_dark });
+    let mesh_tope_right = new THREE.Mesh(tope_right, material_tope_right);
+    mesh_tope_right.position.set(0.3,0.8001,0.8);
+    mesh_tope_right.rotateX(Math.PI/16);
+    this.kartChassis.add(mesh_tope_right);
+
+    let Franja_derecha = new THREE.BoxGeometry(0.4,0.4,4.49);
+    let material_Franja_derecha = new THREE.MeshStandardMaterial({ color: material_color_dark });
+    let mesh_Franja_derecha = new THREE.Mesh(Franja_derecha, material_Franja_derecha);
+    mesh_Franja_derecha.position.set(-0.4,0.64,0);
+    this.kartChassis.add(mesh_Franja_derecha);
+
+    let Franja_izquierda = new THREE.BoxGeometry(0.4,0.4,4.49);
+    let material_Franja_izquierda = new THREE.MeshStandardMaterial({ color: material_color_dark });
+    let mesh_Franja_izquierda = new THREE.Mesh(Franja_izquierda, material_Franja_izquierda);
+    mesh_Franja_izquierda.position.set(0.4,0.64,0);
+    this.kartChassis.add(mesh_Franja_izquierda);
+
+    let color_gris = 0x555555;
+
+    let parachoques = new THREE.BoxGeometry(2.09,0.3,0.45);
+    let material_parachoques = new THREE.MeshStandardMaterial({ color: color_gris });
+    let mesh_parachoques = new THREE.Mesh(parachoques, material_parachoques);
+    mesh_parachoques.position.set(0,0.2,2.09);
+    this.kartChassis.add(mesh_parachoques);
+
+    let luces_delanteras = new THREE.BoxGeometry(0.4,0.2,0.1);
+    let material_luces_delanteras = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, emissive: 0xFFFFAA, emissiveIntensity: 1 });
+    let mesh_luces_delanteras = new THREE.Mesh(luces_delanteras, material_luces_delanteras);
+    mesh_luces_delanteras.position.set(-0.5,0.6,2.21);
+    this.kartChassis.add(mesh_luces_delanteras);
+
+    let mesh_luces_delanteras2 = new THREE.Mesh(luces_delanteras, material_luces_delanteras);
+    mesh_luces_delanteras2.position.set(0.5,0.6,2.21);
+    this.kartChassis.add(mesh_luces_delanteras2);
+
     let color_ventana = 0x3F4444;
     let ventana_frontal = new THREE.CylinderGeometry(6.3,9,4.2,4) // 6.3,8.5,4.3,4
     let material_ventana = new THREE.MeshStandardMaterial({ color: color_ventana });
@@ -75,6 +122,35 @@ export class Kart {
     mesh_ventanaFrontal.scale.set(0.125,0.125,0.125);
     mesh_ventanaFrontal.position.set(0,1.12,-0.55);
     this.kartChassis.add(mesh_ventanaFrontal);
+
+    let ventana_trasera = new THREE.CylinderGeometry(6.3,9,4.2,4) // 6.3,8.5,4.3,4
+    let mesh_ventanaTrasera = new THREE.Mesh(ventana_trasera, material_ventana);
+    mesh_ventanaTrasera.rotation.y = Math.PI / 4;
+    mesh_ventanaTrasera.scale.set(0.125,0.125,0.125);
+    mesh_ventanaTrasera.position.set(0,1.12,-0.85);
+    this.kartChassis.add(mesh_ventanaTrasera);
+
+    let ventana_lateral_izquierda = new THREE.CylinderGeometry(6.3,9,4.2,4) // 6.3,8.5,4.3,4
+    let mesh_ventanaLateralIzquierda = new THREE.Mesh(ventana_lateral_izquierda, material_ventana);
+    mesh_ventanaLateralIzquierda.rotation.y = Math.PI / 4;
+    mesh_ventanaLateralIzquierda.scale.set(0.125,0.125,0.125);
+    mesh_ventanaLateralIzquierda.position.set(-0.15,1.12,-0.7);
+    this.kartChassis.add(mesh_ventanaLateralIzquierda);
+
+    let ventana_lateral_derecha = new THREE.CylinderGeometry(6.3,9,4.2,4) // 6.3,8.5,4.3,4
+    let mesh_ventanaLateralDerecha = new THREE.Mesh(ventana_lateral_derecha, material_ventana);
+    mesh_ventanaLateralDerecha.rotation.y = Math.PI / 4;
+    mesh_ventanaLateralDerecha.scale.set(0.125,0.125,0.125);
+    mesh_ventanaLateralDerecha.position.set(0.15,1.12,-0.7);
+    this.kartChassis.add(mesh_ventanaLateralDerecha);
+
+    let tubo_escape = new THREE.CylinderGeometry(0.1,0.1,0.4);
+    let material_tubo_escape = new THREE.MeshStandardMaterial({ color: color_gris });
+    let mesh_tubo_escape = new THREE.Mesh(tubo_escape, material_tubo_escape);
+    mesh_tubo_escape.rotation.x = Math.PI / 2;
+    mesh_tubo_escape.position.set(-0.5,0.2,-2.15); //0.5,0.6,2.2
+    this.kartChassis.add(mesh_tubo_escape);
+
 
     this.kart.add(this.kartChassis);
     this.kart.position.set(0, 0.6,-3)

@@ -6,8 +6,8 @@ import { aabbIntersects, reflectDirection, resolvePenetrationProyectil } from '.
 import type { CollisionClassName } from './models/colisionClass';
 import { TrafficCone } from './trafficCone';
 import { Walls } from './walls';
-import { kart } from './utils/initializers';
 import type { Kart } from './kart';
+
 export class Shuriken {
   private mesh: THREE.Mesh;
   private name?: string;
