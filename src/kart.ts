@@ -194,7 +194,7 @@ export class Kart {
           // Activar bomba
           console.log("Bomba activada");
           const bomb = new Bomb();
-          bomb.setPosition(0,0.1,-2);
+          bomb.setPosition(0,0.5,-4);
           this.proyectilesList.push(bomb);
           this.powerUpsList.add(bomb.getBody());
           break;
@@ -307,6 +307,7 @@ public animatePowerUps(deltaTime: number = 0.016): void {
 
     switch (this.powerUps) {
       case 0:
+      case 3:
       case 4:
         this.powerUpsList.rotation.copy(this.kart.rotation);
         break;
@@ -316,11 +317,8 @@ public animatePowerUps(deltaTime: number = 0.016): void {
       case 6:
         this.powerUpsList.rotation.y -= 0.01;
         break;
-    case 3:
-      this.powerUpsList.rotation.copy(this.kart.rotation);
-      break;
       default:
-        break;
+          break;
     }
 
   this.powerUpsList.position.copy(this.kart.position);

@@ -11,7 +11,7 @@ export class Bomb {
   private fuse: THREE.Mesh;
   private name?: string;
 
-  private direction: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
+  private direction: THREE.Vector3 = new THREE.Vector3(0, 1, 0);
   private velocity: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
   private gravity: number = 9.8; // gravedad simulada
   private timer: number = 3; // segundos antes de explotar
@@ -28,13 +28,14 @@ export class Bomb {
 
     if (this.name) this.mesh.name = this.name;
 
-        // --- Mecha (fuse) ---
+    // --- Mecha (fuse) ---
     const fuseGeometry = new THREE.CylinderGeometry(0.03, 0.03, 0.25, 8);
     const fuseMaterial = new THREE.MeshStandardMaterial({ color: 0xffaa00, emissive: 0xff6600, emissiveIntensity: 1 });
     this.fuse = new THREE.Mesh(fuseGeometry, fuseMaterial);
     this.fuse.position.set(0, 0.6, 0); // encima de la bomba
     this.mesh.add(this.fuse);
-
+    this.mesh.add(new THREE.AxesHelper(3));
+    
     scene.add(this.mesh);
     collisionObserver.addColisionObject(this);
   }

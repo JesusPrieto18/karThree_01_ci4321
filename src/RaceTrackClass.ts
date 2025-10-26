@@ -30,7 +30,7 @@ export class RaceTrack {
 
   /** Detecta colisiones con otros objetos */
   public isColliding(target: CollisionClassName): void {
-    if (target instanceof Bomb) {
+    if (target instanceof Bomb && target.getLaunched()) {
       const bombBody = target.getBody();
       if (aabbIntersects(this.mesh, bombBody)) {
         console.log('La bomba tocó el suelo (RaceTrack)');
