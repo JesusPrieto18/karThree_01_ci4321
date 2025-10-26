@@ -1,8 +1,17 @@
 import { kart } from './utils/initializers';
 import { calculateWheelRotation} from './utils/utils';
 import { camera } from './scene.ts';
+import * as THREE from 'three';
 
 const keys: Record<string, boolean> = {};
+let normalCameraDistance = 5;   // distancia normal detrás del kart
+let turboCameraDistance = 8;    // distancia cuando está en turbo
+let currentCameraDistance = 5;  // distancia interpolada frame a frame
+let normalCameraHeight = 2;
+let turboCameraHeight = 2.8;
+let currentCameraHeight = 2;
+
+
 let cameraMode: number = 0;
 let rMode: number = 0; // 0: tercera persona, 1: primera persona
 let godMode: boolean = false;
@@ -126,8 +135,8 @@ export function updateControls(): void {
 const changeCameraPosition = (cameraMode: number | undefined, rMode: number | undefined) => {
   if (cameraMode === 0) {
     // Vista tercera persona (detrás del kart.getKart())
-    const distanceBehind = 5;
-    const height = 2;
+    const distanceBehind = currentCameraDistance;
+    const height = currentCameraHeight;
     if (rMode === 0) {
       camera.position.x = kart.getBody().position.x - Math.sin(kart.getBody().rotation.y) * distanceBehind;
       camera.position.z = kart.getBody().position.z - Math.cos(kart.getBody().rotation.y) * distanceBehind;
@@ -156,7 +165,33 @@ const changeCameraPosition = (cameraMode: number | undefined, rMode: number | un
 }
 
 
+export function updateCameraRig() {
+  // Elegir el objetivo según el estado del boost
+  let targetDistance = normalCameraDistance;
+  let targetHeight = normalCameraHeight;
 
+  if (kart.getBoostActive()) {
+    targetDistance = turboCameraDistance;
+    targetHeight = turboCameraHeight;
+  } else if (kart.getBoostFalloff()) {
+    // estamos volviendo a la normal
+    targetDistance = normalCameraDistance;
+    targetHeight = normalCameraHeight;
+  }
+
+  // Lerp suave (5% de diferencia por frame aprox)
+  currentCameraDistance = THREE.MathUtils.lerp(
+    currentCameraDistance,
+    targetDistance,
+    0.05
+  );
+
+  currentCameraHeight = THREE.MathUtils.lerp(
+    currentCameraHeight,
+    targetHeight,
+    0.05
+  );
+}
 
 
 

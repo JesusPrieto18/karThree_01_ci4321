@@ -156,7 +156,14 @@ export class Kart {
   public setZ(z: number): void {
     this.kart.position.z = z;
   }
+  
+  public getBoostActive(): boolean {
+    return this.boostActive;
+  }
 
+  public getBoostFalloff(): boolean {
+    return this.boostFalloff;
+  }
   public setRotation(x: number, y: number, z: number): void {
     this.kart.rotation.set(x, y, z);
   }
