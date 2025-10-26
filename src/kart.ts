@@ -290,7 +290,7 @@ export class Kart {
             proyectil.setVelocity(
               new THREE.Vector3(
                 Math.sin(this.kart.rotation.y) * 5, // hacia adelante
-                3,// ligeramente hacia arriba
+                4,// ligeramente hacia arriba
                 Math.cos(this.kart.rotation.y) * 5
               )
             );

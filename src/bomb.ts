@@ -135,7 +135,7 @@ public rotateY(angleRad: number): void {
     const explosion = new THREE.Vector3(this.mesh.position.x, this.mesh.position.y, this.mesh.position.z);
 
     // Pequeño efecto visual (puedes animarlo luego)
-    this.mesh.scale.set(1.5, 1.5, 1.5);
+    this.mesh.scale.set(3, 3, 3);
 
     console.log('Bomba explotó en:', explosion);
 
