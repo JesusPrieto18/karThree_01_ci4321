@@ -8,6 +8,7 @@ import { Walls } from './walls';
 
 export class Bomb {
   private mesh: THREE.Mesh;
+  private fuse: THREE.Mesh;
   private name?: string;
 
   private direction: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
@@ -26,6 +27,13 @@ export class Bomb {
     this.mesh = new THREE.Mesh(geometry, material);
 
     if (this.name) this.mesh.name = this.name;
+
+        // --- Mecha (fuse) ---
+    const fuseGeometry = new THREE.CylinderGeometry(0.03, 0.03, 0.25, 8);
+    const fuseMaterial = new THREE.MeshStandardMaterial({ color: 0xffaa00, emissive: 0xff6600, emissiveIntensity: 1 });
+    this.fuse = new THREE.Mesh(fuseGeometry, fuseMaterial);
+    this.fuse.position.set(0, 0.6, 0); // encima de la bomba
+    this.mesh.add(this.fuse);
 
     scene.add(this.mesh);
     collisionObserver.addColisionObject(this);
@@ -86,6 +94,16 @@ public rotateY(angleRad: number): void {
     this.velocity.copy(initialVelocity);
   }
 
+    /** Animación de la mecha */
+  private updateFuse(deltaTime: number): void {
+    const fuseMat = this.fuse.material as THREE.MeshStandardMaterial;
+    // Cambiar el color hacia rojo con el tiempo
+    const t = Math.max(0, this.timer / 3); // normaliza 1 → 0
+    fuseMat.color.setHSL(0.1 + (1 - t) * 0.1, 1, 0.5); // de naranja a rojo
+    fuseMat.emissiveIntensity = 1 + (1 - t) * 4; // brilla más al final
+    this.fuse.scale.y = t * 1; // se va acortando
+  }
+
   /** Actualiza posición, gravedad y temporizador */
   public update(deltaTime: number): void {
     if (this.exploded) return;
@@ -95,7 +113,8 @@ public rotateY(angleRad: number): void {
 
     // Mover la bomba
     this.mesh.position.addScaledVector(this.velocity, deltaTime);
-
+    //Mecha
+    this.updateFuse(deltaTime);
     // Contador regresivo
     this.timer -= deltaTime;
     if (this.timer <= 0) {
