@@ -1,6 +1,6 @@
 # karThree_01_ci4321
 Un pequeño prototipo 3D desarrollado con **Three.js** que simula un kart con físicas simples, colisiones, power-ups y proyectiles (como bombas y shurikens).  
-Desarrollado por Jesús Prieto y Jesús Cuéllar en la materia **CI4321 Computación Gráfica I** de la Universidad Simón Bólivar.
+Desarrollado por Jesús Prieto y Jesús Cuéllar **The Yisus Team** en la materia **CI4321 Computación Gráfica I** de la Universidad Simón Bólivar.
 
 ---
 
@@ -120,8 +120,13 @@ El proyecto usa un **Collision Observer** central que mantiene una lista de obje
 src/
 │
 ├── models/
-│
+│  ├── colisionClass #Contiene las Clases que colisionan 
 ├── utils/ #Diferentes utilidades para facilitar ciertos procesos
+    ├── animation.ts
+    ├── cameraControls.ts
+    ├── colliding.ts #Aquí esta la logica para el patro Observer usado para colisones
+    ├── initializers.ts
+    ├── animation.ts
 │ ├── bomb.ts # Clase Bomb → proyectil con gravedad y temporizador de explosión
 │ ├── box.ts # Genera cajas u obstáculos simples en la pista
 │ ├── coffee.ts # Power-up tipo “café” que otorga velocidad
@@ -142,7 +147,7 @@ src/
 |── index.html 
 |── LICENSE # Licencia Creativa Libre (MIT)
 |── main.ts # Punto de entrada del juego (crea escena, inicia loop principal, renderiza)
-|── package-lock.json
+|── package-lock.json 
 |── package.json
 |── README.md
 |── style.css
